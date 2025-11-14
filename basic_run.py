@@ -10,6 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pyrcel import binned_activation
 
+import pandas as pd
+
 P0 = 77500. # Pressure, Pa
 T0 = 274.   # Temperature, K
 S0 = -0.02  # Supersaturation, 1-RH (98% here)
@@ -111,6 +113,27 @@ print("          total = {:3.1f} / {:3.0f} ~ act frac = {:1.2f}".format(
       sea_salt.total_N+sulfate.total_N,
       (eq_sulf+eq_sea)/(sea_salt.total_N+sulfate.total_N)
 ))
+# --- Créer fichier CSV avec résumé CDNC et rayon moyen ---
+# Calcul rayon moyen pour chaque aérosol (moyenne sur toutes hauteurs et rayons)
+sulf_mean_radius = sulf_trace.values.mean()  # moyenne de tous les rayons à tous les temps
+sea_mean_radius = sea_trace.values.mean()
+
+# Créer DataFrame avec 2 lignes (une par aérosol)
+summary_data = {
+    'Aerosol': ['sulfate', 'sea salt'],
+    'CDNC': [eq_sulf, eq_sea],
+    'Mean_Radius_micron': [sulf_mean_radius * 1e6, sea_mean_radius * 1e6]
+}
+
+summary_df = pd.DataFrame(summary_data)
+
+# Sauvegarder en CSV
+summary_csv = os.path.join(os.path.dirname(__file__), 'aerosol_summary.csv')
+summary_df.to_csv(summary_csv, index=False)
+
+print(f"\nSaved aerosol summary -> {summary_csv}")
+print(summary_df)
 
 plt.tight_layout()
 plt.show()
+
