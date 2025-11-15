@@ -53,13 +53,13 @@ int main() {
         double denominator = numerator + 2.0;
         double R = numerator / denominator;
 
-        // ---- Écriture dans CSV sortie ----
+        // output CSV file
         fprintf(outfile, "%s,%.6e,%.6f\n", aerosol, tau_c, R);
     }
 
     fclose(infile);
     fclose(outfile);
 
-    printf("Calcul terminé : resultats_optique.csv généré.\n");
+    printf("results_albedo.csv created.\n");
     return 0;
 }
