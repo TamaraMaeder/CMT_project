@@ -6,57 +6,63 @@
 #define G 0.85
 #define PI 3.141592653589793
 
+// Fixed cloud thickness in meters
+#define H_M 250.0
+
 int main() {
     FILE *infile, *outfile;
     char line[256];
 
-    // open the file generated with pyrcel on Py
-    infile = fopen("aerosols_pyrcel.csv", "r");
+    // Open the input file generated with PyRCEL
+    infile = fopen("aerosol_summary.csv", "r");
     if (!infile) {
-        printf("Error : not possible to open it aerosols_pyrcel.csv\n");
+        printf("Error: unable to open aerosol_summary.csv\n");
         return 1;
     }
 
+    // Open the output file
     outfile = fopen("results_albedo.csv", "w");
     if (!outfile) {
-        printf("Error : not possible to open results_albedo.csv\n");
+        printf("Error: unable to open results_albedo.csv\n");
         fclose(infile);
         return 1;
     }
 
-    // Header output file 
-    fprintf(outfile, "aerosol,tau_c,R\n");
+    // Write header for the output file
+    fprintf(outfile, "Aerosol,tau_c,R\n");
 
-    // Read and ignore the header line
+    // Read and ignore the header line of the input file
     fgets(line, sizeof(line), infile);
 
     char aerosol[64];
-    double re_um, N_cm3, h_m; // ATTENTION LES UTNITES !!!!
+    double CDNC_cm3, re_um;
 
-    // Lecture line by line 
+    // Read input file line by line
     while (fgets(line, sizeof(line), infile)) {
 
-        // name, re_um, N_cm3, h_m
-        if (sscanf(line, "%63[^,],%lf,%lf,%lf", aerosol, &re_um, &N_cm3, &h_m) != 4) {
-            continue; // ignore incorrect lines
+        // Expected format: Aerosol,CDNC,Mean_Radius_micron
+        if (sscanf(line, "%63[^,],%lf,%lf", aerosol, &CDNC_cm3, &re_um) != 3) {
+            // Skip malformed or incomplete lines
+            continue;
         }
 
-        // units convertion
-        double re_m = re_um * 1e-6;     // µm → m
-        double N_m3 = N_cm3 * 1e6;      // cm^-3 → m^-3
+        // Unit conversions
+        double re_m = re_um * 1e-6;    // microns → meters
+        double N_m3 = CDNC_cm3 * 1e6;  // cm^-3 → m^-3
 
-        // tau_c
-        double tau_c = 2.0 * PI * re_m * N_m3 * h_m;
+        // Optical thickness tau_c = 2π r_e N h
+        double tau_c = 2.0 * PI * re_m * N_m3 * H_M;
 
-        // albedo 
+        // Cloud albedo approximation
         double numerator = (1.0 - G) * tau_c;
         double denominator = numerator + 2.0;
         double R = numerator / denominator;
 
-        // output CSV file
+        // Write computed values into the output CSV
         fprintf(outfile, "%s,%.6e,%.6f\n", aerosol, tau_c, R);
     }
 
+    // Close files
     fclose(infile);
     fclose(outfile);
 
