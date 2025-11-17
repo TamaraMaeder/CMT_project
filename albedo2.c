@@ -77,4 +77,4 @@ int main() {
 // rechercher le h (j'ai assumé à 250 m mais jsp)
 // vérifier si cest les bonne formules de manière générale (suivant les sources ca diffère)
 // on pourra supprimer mon code précédent (albedo) et le fichier csv correspondant (results_albedo) car faux 
-// mais avant de supprimer je veux etre sure et voir avec toi
+// mais avant de supprimer je veux etre sure 
