@@ -1,3 +1,8 @@
+#This code is based on the basic run demo from Pyrcel, 
+# we will setup a simple parcel model simulation containing two aerosol modes. 
+# We will then run the model with a 1 m/s updraft, and observe how the aerosol population bifurcates 
+# into swelled aerosol and cloud droplets.
+
 # Suppress warnings
 import warnings
 warnings.simplefilter('ignore')
@@ -113,26 +118,37 @@ print("          total = {:3.1f} / {:3.0f} ~ act frac = {:1.2f}".format(
       sea_salt.total_N+sulfate.total_N,
       (eq_sulf+eq_sea)/(sea_salt.total_N+sulfate.total_N)
 ))
-# --- Créer fichier CSV avec résumé CDNC et rayon moyen ---
-# Calcul rayon moyen pour chaque aérosol (moyenne sur toutes hauteurs et rayons)
-sulf_mean_radius = sulf_trace.values.mean()  # moyenne de tous les rayons à tous les temps
-sea_mean_radius = sea_trace.values.mean()
 
-# Créer DataFrame avec 2 lignes (une par aérosol)
-summary_data = {
-    'Aerosol': ['sulfate', 'sea salt'],
-    'CDNC': [eq_sulf, eq_sea],
-    'Mean_Radius_micron': [sulf_mean_radius * 1e6, sea_mean_radius * 1e6]
-}
 
-summary_df = pd.DataFrame(summary_data)
+## --- Créer un CSV contenant les bins pour chaque espèce d'aérosol ---
 
-# Sauvegarder en CSV
-summary_csv = os.path.join(os.path.dirname(__file__), 'aerosol_summary.csv')
-summary_df.to_csv(summary_csv, index=False)
+bin_rows = []
 
-print(f"\nSaved aerosol summary -> {summary_csv}")
-print(summary_df)
+for aerosol in [sulfate, sea_salt]:
+
+    # Rayons représentatifs (microns)
+    r_rep = 0.5 * (aerosol.rs[:-1] + aerosol.rs[1:])
+    r_rep_micron = r_rep  # µm
+
+    # Concentration par bin (convertie en cm^-3)
+    N_bin_cm3 = aerosol.Nis * 1e-6
+
+    for r, N in zip(r_rep_micron, N_bin_cm3):
+        bin_rows.append({
+            "species": aerosol.species,            #  <<<<< FIX !
+            "radius_micron": r,
+            "concentration_cm^-3": N
+        })
+
+# DataFrame
+bins_df = pd.DataFrame(bin_rows)
+
+# Export CSV dans le dossier du script
+bin_csv = os.path.join(os.path.dirname(__file__), 'bins.csv')
+bins_df.to_csv(bin_csv, index=False)
+
+print(f"\nSaved bin data -> {bin_csv}")
+print(bins_df.head())
 
 plt.tight_layout()
 plt.show()
