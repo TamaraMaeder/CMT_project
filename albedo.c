@@ -5,11 +5,37 @@
 
 #define PI 3.141592653589793
 
-double compute_LWP(double r_m, double N, double h) {
+double compute_LWP(double r_v, double N, double h) {
     double rho = 1000.0;  // water density (kg/m3)
-    return (3.0/4.0) * PI * pow(r_m, 3.0) * rho * N * h;
+    return (4.0/3.0) * PI * pow(r_v, 3.0) * rho * N * h;
 }
-// voir si cest le bon r car jsp si r moyen est correct pour mettre dans les formules
+
+double r_v(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        perror("Error opening bins file");
+        exit(1);
+    }
+    char line[256];
+    double r_um, n;
+    double sum_r3n = 0.0;
+    double sum_n = 0.0;
+    fgets(line, sizeof(line), f); // skip header
+    while (fgets(line, sizeof(line), f)) {
+        if (sscanf(line, "%*[^,],%lf,%lf", &r_um, &n) == 2) {
+            double r_m = r_um * 1e-6; // µm to m
+            sum_r3n += n * pow(r_m, 3.0);
+            sum_n   += n;
+        }
+    }
+    fclose(f);
+    if (sum_n == 0) {
+        fprintf(stderr, "Error: bins file empty or invalid\n");
+        exit(1);
+    }
+
+    return pow(sum_r3n / sum_n, 1.0 / 3.0); // wet mean radius in m
+}
 
 double effective_radius(const char *filename) {
     FILE *f = fopen(filename, "r");
@@ -63,12 +89,11 @@ int main() {
         double N, r_micron;
         if (sscanf(line, "%63[^,],%lf,%lf", aerosol, &N, &r_micron) != 3)
             continue;
-        // Conversion radius microns to meter
-        double r_m = r_micron * 1e-6;
-        // Assumption h = 250 m 
-        double h = 250.0;
-        double LWP = compute_LWP(r_m, N, h);
+        double rv = r_v("bins.csv");
         double re = effective_radius("bins.csv");
+        // Assumption h = 1000 m 
+        double h = 1000.0;
+        double LWP = compute_LWP(rv, N, h);
         double tau_c = compute_tau(LWP, re);
         double albedo = compute_albedo(tau_c);
         fprintf(fout, "%s,%e,%e,%e,%e\n",
@@ -81,6 +106,4 @@ int main() {
 }
 
 
-// rechercher la formule exacte du rayon effectif
-// rechercher le h (j'ai assumé à 250 m mais jsp)
-// vérifier si cest les bonne formules de manière générale (suivant les sources ca diffère)
+// CDNC !!!! Le N c'est quoi ?? --> recherche et cpmprendre formules 
