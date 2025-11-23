@@ -15,9 +15,13 @@ sulfate =  pc.AerosolSpecies('sulfate',
                              pc.Lognorm(mu=0.015, sigma=1.6, N=850.),
                              kappa=0.54, bins=200)
 sea_salt = pc.AerosolSpecies('sea salt',
-                             pc.Lognorm(mu=0.85, sigma=1.2, N=10.),
-                             kappa=1.2, bins=40)
+                             pc.Lognorm(mu=0.85, sigma=1.2, N=10),
+                             kappa=1.2, bins=200)
 
+print("Please notice that Particula and Pyrcel have two different y-axis values even because " \
+"Particula gives a probability mass function while Pyrcel gives a number concentration." \
+"It means that Particula is plotting normalized values (area under the curve equals number of particles N)," \
+" but not scaled to concentration units.")
 
 fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
@@ -34,6 +38,7 @@ ax.set_xscale('log')
 ax.set_xlabel("Aerosol dry radius, micron")
 ax.set_ylabel("Aerosl number conc., cm$^{-3}$")
 ax.legend(loc='upper right')
+ax.set_title("Pyrcel: Aerosol lognormal size distribution")
 
 #plt.show()
 
@@ -42,20 +47,33 @@ ax.legend(loc='upper right')
 x_values = np.logspace(-3, 1, 2000)  # From 0.001 to 10 microns
 
 # Single mode distribution
-single_mode_gsd = np.array([1.4])
-single_mode = np.array([0.02])
-single_mode_nparticles = np.array([1e3])
+"""
+# for sulfate 
+single_mode_gsd = np.array([1.6])
+single_mode = np.array([0.015])
+single_mode_nparticles = np.array([850])
 
 single_mode_distribution = pm.particles.get_lognormal_pdf_distribution(
     x_values, single_mode, single_mode_gsd, single_mode_nparticles
 )
 
-# Multi-mode distribution
-multi_mode_gsd = np.array([1.4, 1.8])
-multi_mode = np.array([0.02, 1.0])
-multi_mode_nparticles = np.array([1e3, 1e3])
+"""
+#  for sea salt 
+single_mode_gsd = np.array([1.2])
+single_mode = np.array([0.85])
+single_mode_nparticles = np.array([10])
 
-multi_mode_distribution = pm.particles.get_lognormal_pdf_distribution(
+
+single_mode_distribution = pm.particles.get_lognormal_pmf_distribution(
+    x_values, single_mode, single_mode_gsd, single_mode_nparticles
+)
+
+# Multi-mode distribution with sulfate and sea salt 
+multi_mode_gsd = np.array([1.6, 1.2])
+multi_mode = np.array([0.015, 0.85])
+multi_mode_nparticles = np.array([850, 10])
+
+multi_mode_distribution = pm.particles.get_lognormal_pmf_distribution(
     x_values, multi_mode, multi_mode_gsd, multi_mode_nparticles
 )
 
@@ -70,7 +88,7 @@ multi_pmf_distribution = pm.particles.get_lognormal_pmf_distribution(
 plt.figure(figsize=(10, 6))
 plt.plot(x_values, single_pmf_distribution, label="Single Mode", linewidth=4)
 plt.plot(x_values, multi_pmf_distribution, label="Multi Mode")
-plt.title("Lognormal PMF Particle Size Distribution")
+plt.title("Particula: Lognormal PMF Particle Size Distribution")
 plt.xlabel("Particle Diameter (μm)")
 plt.ylabel("Number of Particles")
 plt.xscale("log")
