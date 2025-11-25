@@ -44,23 +44,29 @@ double effective_radius(const char *filename) {
         exit(1);
     }
     char line[256];
-    double r_um, n;
-    double sum_r3n = 0.0;
-    double sum_r2n = 0.0;
+    double r_um_prev = 0.0, r_um_curr, n;
+    double sum_r3n = 0.0, sum_r2n = 0.0;
+    int first_line = 1;
     fgets(line, sizeof(line), f);
     while (fgets(line, sizeof(line), f)) {
-        if (sscanf(line, "%*[^,],%lf,%lf", &r_um, &n) == 2) {
-            double r_m = r_um * 1e-6;  // µm to m
-            sum_r3n += n * pow(r_m, 3.0);
-            sum_r2n += n * pow(r_m, 2.0);
+        if (sscanf(line, "%*[^,],%lf,%lf", &r_um_curr, &n) == 2) {
+            if (!first_line) {
+                double dr_m = (r_um_curr - r_um_prev) * 1e-6; // µm to m
+                double r_m = r_um_prev * 1e-6;               // µm to m
+                sum_r3n += n * pow(r_m, 3.0) * dr_m;
+                sum_r2n += n * pow(r_m, 2.0) * dr_m;
+            } else {
+                first_line = 0;
+            }
+            r_um_prev = r_um_curr;
         }
     }
     fclose(f);
     if (sum_r2n == 0.0) {
-        fprintf(stderr, "Erreur: somme r^2*n = 0\n");
+        fprintf(stderr, "Error: sum r^2*n = 0\n");
         exit(1);
     }
-    return sum_r3n / sum_r2n;  // r_eff in m
+    return sum_r3n / sum_r2n; // r_eff in m
 }
 
 double compute_tau(double LWP, double re) {
@@ -86,9 +92,10 @@ int main() {
     fprintf(fout, "Aerosol,LWP,re,tau_c,Albedo\n");
     while (fgets(line, sizeof(line), fin)) {
         char aerosol[64];
-        double N, r_micron;
-        if (sscanf(line, "%63[^,],%lf,%lf", aerosol, &N, &r_micron) != 3)
+        double N_cm3, r_micron;
+        if (sscanf(line, "%63[^,],%lf,%lf", aerosol, &N_cm3, &r_micron) != 3)
             continue;
+        double N = N_cm3 * 1e6;  // conversion cm^-3 to m^-3
         double rv = r_v("bins.csv");
         double re = effective_radius("bins.csv");
         // Assumption h = 1000 m 
@@ -106,4 +113,3 @@ int main() {
 }
 
 
-// CDNC !!!! Le N c'est quoi ?? --> recherche et cpmprendre formules 
