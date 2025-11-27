@@ -137,7 +137,7 @@ for aerosol in [sulfate, sea_salt]:
         bin_rows.append({
             "species": aerosol.species,            #  <<<<< FIX !
             "radius_micron": r,
-            "concentration_cm^-3": N
+            "concentration_cm^-3": N    
         })
 
 # DataFrame

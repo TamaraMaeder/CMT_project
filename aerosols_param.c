@@ -39,7 +39,7 @@ int main(void) {
         /*  name               origin               N0     Dg      sigma_g  kappa */
         { "Sea_salt_coarse",    AEROSOL_NATURAL,        50.0,  0.80, 2.0,  1.2  },
         { "Biogenic_OC",        AEROSOL_NATURAL,       300.0,  0.15, 1.6,  0.15 },
-        { "Sulfate_accum",      AEROSOL_ANTHROPOGENIC, 800.0,  0.10, 1.7,  0.60 },
+        { "Sulfate_accum",      AEROSOL_ANTHROPOGENIC, 800.0,  0.10, 1.7,  0.54 },
         { "Anthropogenic_OC",   AEROSOL_ANTHROPOGENIC, 400.0,  0.12, 1.6,  0.20 },
         { "Black_carbon_fine",  AEROSOL_ANTHROPOGENIC, 200.0,  0.05, 1.5,  0.01 }
     };
