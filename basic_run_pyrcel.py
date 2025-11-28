@@ -120,17 +120,17 @@ print("          total = {:3.1f} / {:3.0f} ~ act frac = {:1.2f}".format(
 ))
 
 
-## --- Créer un CSV contenant les bins pour chaque espèce d'aérosol ---
+## Create a csv that contains the bins radius 
 
 bin_rows = []
 
 for aerosol in [sulfate, sea_salt]:
 
-    # Rayons représentatifs (microns)
+    # representative radius (microns)
     r_rep = 0.5 * (aerosol.rs[:-1] + aerosol.rs[1:])
     r_rep_micron = r_rep  # µm
 
-    # Concentration par bin (convertie en cm^-3)
+    # Concentration per bin (converted in cm^-3)
     N_bin_cm3 = aerosol.Nis * 1e-6
 
     for r, N in zip(r_rep_micron, N_bin_cm3):
@@ -143,7 +143,7 @@ for aerosol in [sulfate, sea_salt]:
 # DataFrame
 bins_df = pd.DataFrame(bin_rows)
 
-# Export CSV dans le dossier du script
+# Export CSV in the fill of the script 
 bin_csv = os.path.join(os.path.dirname(__file__), 'bins.csv')
 bins_df.to_csv(bin_csv, index=False)
 
