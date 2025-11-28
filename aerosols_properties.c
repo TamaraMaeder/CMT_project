@@ -52,7 +52,7 @@ int compute_rv_re(const char *filename, Aerosol *aerosols) {
             continue;
 
         int idx = find_or_add_species(aerosols, &n_species, species);
-        double r_m = r_um * 1e-3; // um -> m
+        double r_m = r_um * 1e-6; // um -> m
         double r2 = r_m * r_m;
         double r3 = r2 * r_m;
 
@@ -79,7 +79,7 @@ int compute_rv_re(const char *filename, Aerosol *aerosols) {
 
 // fonctions optiques existantes
 double compute_LWP(double r_v, double N, double h) {
-    double rho = 1000.0;
+    double rho = 1000000.0; // g/m^3
     return (4.0/3.0) * PI * r_v*r_v*r_v * rho * N * h;
 }
 
@@ -125,8 +125,10 @@ int main() {
         }
         if (idx == -1) continue; // espèce non trouvée
 
-        double rv = pow(aerosols[idx].sum_r3n / aerosols[idx].sum_n, 1.0/3.0);
+        //double rv = pow(aerosols[idx].sum_r3n / aerosols[idx].sum_n, 1.0/3.0);
+        double rv = 7* 1e-6;
         double re = aerosols[idx].sum_r2n_eff > 0 ? aerosols[idx].sum_r3n_eff / aerosols[idx].sum_r2n_eff : 0.0;
+        //double re = 5* 1e-6;
         double N = N_cm3 * 1e6; // cm^-3 -> m^-3
         double h = 250.0;      // hauteur (m)
         double LWP = compute_LWP(rv, N, h);
