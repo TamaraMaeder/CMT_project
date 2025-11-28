@@ -125,8 +125,10 @@ int main() {
         }
         if (idx == -1) continue; // espèce non trouvée
 
-        double rv = pow(aerosols[idx].sum_r3n / aerosols[idx].sum_n, 1.0/3.0);
+        //double rv = pow(aerosols[idx].sum_r3n / aerosols[idx].sum_n, 1.0/3.0);
+        double rv = 7* 1e-6;
         double re = aerosols[idx].sum_r2n_eff > 0 ? aerosols[idx].sum_r3n_eff / aerosols[idx].sum_r2n_eff : 0.0;
+        //double re = 5* 1e-6;
         double N = N_cm3 * 1e6; // cm^-3 -> m^-3
         double h = 250.0;      // hauteur (m)
         double LWP = compute_LWP(rv, N, h);
