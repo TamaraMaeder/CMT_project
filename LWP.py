@@ -39,8 +39,28 @@ rho_w = 1000.0  # kg/m3 densité de l'eau
 z = parcel_trace['z'].values
 r_wet_sea_salt = aerosol_traces['sea salt'].values     # rayon humide [time, bins] en m
 r_wet_sulfate = aerosol_traces['sulfate'].values     # rayon humide [time, bins] en m
-N_bin_cm3_sulfate = sulfate.Nis * 1e-6   # concentration #/cm3 [time, bins]
-N_bin_cm3_sea_salt = sea_salt.Nis * 1e-6   # concentration #/cm3 [time, bins]
+N_bin_cm3_sulfate = sulfate.Nis  # concentration #/m3 [time, bins]
+N_bin_cm3_sea_salt = sea_salt.Nis   # concentration #/m3 [time, bins]
+
+N_bin= [N_bin_cm3_sea_salt,N_bin_cm3_sulfate]
+r_wet=[r_wet_sea_salt,r_wet_sulfate]
+
+#calculation of re^2*N*h for sea salt 
+sum=0
+for i in range (len(N_bin_cm3_sulfate)):
+    for k in range (len(z)):
+        sum+=((r_wet_sulfate[k][i])**2)*N_bin_cm3_sulfate[i]
+
+
+tau1=2*np.pi*sum
+print(tau1)
+albedo1= tau1/ ((2/0.15)+tau1)
+print(albedo1)
+
+# print("r_wet=",r_wet_sea_salt)
+# print("N_bin_cm3_sea_salt=", N_bin_cm3_sea_salt)
+# plt.plot(r_wet_sea_salt[249],N_bin_cm3_sea_salt)
+# plt.show()
 
 # Volume d'une goutte (pour chaque bin)
 V_drop_sea_salt= (4.0/3.0) * np.pi * r_wet_sea_salt**3   # m3
@@ -54,46 +74,53 @@ LWC_sulfate = rho_w * np.sum(N_bin_cm3_sulfate * V_drop_sulfate, axis=1)
 LWP_sea_salt = np.trapezoid(LWC_sea_salt, z)
 LWP_sulfate = np.trapezoid(LWC_sulfate, z)
 
-print("LWP of sea salt =", LWP_sea_salt, "kg/m²")
-print("LWP of sulfate =", LWP_sulfate, "kg/m²")
+tau2= (3/2)*LWP_sulfate*(10**3)/(np.sqrt(sum/(850*250)))
+print(tau2)
+albedo2= tau2/ ((2/0.15)+tau2)
+print(albedo2)
 
-#add to CSV file 
+# print("LWP of sea salt =", LWP_sea_salt, "kg/m²")
+# print("LWP of sulfate =", LWP_sulfate, "kg/m²")
+# print("LWP of sea salt =", LWP_sea_salt*(10**3), "g/m²")
+# print("LWP of sulfate =", LWP_sulfate*(10**3), "g/m²")
 
-#longer method
+# #add to CSV file 
 
-# summary_csv = os.path.join(os.path.dirname(__file__), 'aerosol_summary.csv')
-# summary_df = pd.read_csv(summary_csv)
-# summary_df['Aerosol_key'] = summary_df['Aerosol'].astype(str).str.lower()
+# #longer method
 
-# lwp_map = {
-#     'sulfate': float(LWP_sulfate),
-#     'sea salt': float(LWP_sea_salt)
-# }
-# summary_df['LWP_kg_m2'] = summary_df['Aerosol_key'].map(lwp_map)
-# summary_df = summary_df.drop(columns=['Aerosol_key'])
-# summary_df.to_csv(summary_csv, index=False)
-# print(f"Saved/updated aerosol summary -> {summary_csv}")
+# # summary_csv = os.path.join(os.path.dirname(__file__), 'aerosol_summary.csv')
+# # summary_df = pd.read_csv(summary_csv)
+# # summary_df['Aerosol_key'] = summary_df['Aerosol'].astype(str).str.lower()
 
-# simple method 
-# summary_LWP = [
-#     ['sea salt', LWP_sea_salt],
-#     ['sulfate', LWP_sulfate]
-# ]
+# # lwp_map = {
+# #     'sulfate': float(LWP_sulfate),
+# #     'sea salt': float(LWP_sea_salt)
+# # }
+# # summary_df['LWP_kg_m2'] = summary_df['Aerosol_key'].map(lwp_map)
+# # summary_df = summary_df.drop(columns=['Aerosol_key'])
+# # summary_df.to_csv(summary_csv, index=False)
+# # print(f"Saved/updated aerosol summary -> {summary_csv}")
 
-# aerosols_sum = 'aerosols_summary.csv'
-# with open(aerosols_sum, 'a', newline='') as fichier:
-#     writer = csv.writer(fichier)
-#     for ligne in summary_LWP:
-#         writer.writerow(ligne)
+# # simple method 
+# # summary_LWP = [
+# #     ['sea salt', LWP_sea_salt],
+# #     ['sulfate', LWP_sulfate]
+# # ]
 
-#graph 
+# # aerosols_sum = 'aerosols_summary.csv'
+# # with open(aerosols_sum, 'a', newline='') as fichier:
+# #     writer = csv.writer(fichier)
+# #     for ligne in summary_LWP:
+# #         writer.writerow(ligne)
 
-plt.figure(figsize=(7,5))
-plt.plot(LWC_sulfate, z, linewidth=2)
+# #graph 
 
-plt.xlabel("Liquid Water Content LWC (kg/m³)")
-plt.ylabel("Height (m)")
-plt.title("Vertical profile of LWC from Pyrcel parcel simulation")
-plt.grid(True)
+# plt.figure(figsize=(7,5))
+# plt.plot(z, LWC_sea_salt, linewidth=2)
 
-plt.show()
+# plt.ylabel("Liquid Water Content LWC (kg/m³)")
+# plt.xlabel("Height (m)")
+# plt.title("Vertical profile of LWC from Pyrcel parcel simulation")
+# plt.grid(True)
+# plt.show()
+
