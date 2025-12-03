@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#define PI 3.141592653589793
+
+double compute_LWP(double r_v, double N, double h) {
+    double rho = 1000.0;  // water density (kg/m3)
+    return (4.0/3.0) * PI * pow(r_v, 3.0) * rho * N * h;
+}
+
+double r_v(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        perror("Error opening bins file");
+        exit(1);
+    }
+    char line[256];
+    double r_um, n;
+    double sum_r3n = 0.0;
+    double sum_n = 0.0;
+    fgets(line, sizeof(line), f); // skip header
+    while (fgets(line, sizeof(line), f)) {
+        if (sscanf(line, "%*[^,],%lf,%lf", &r_um, &n) == 2) {
+            double r_m = r_um * 1e-6; // µm to m
+            sum_r3n += n * pow(r_m, 3.0);
+            sum_n   += n;
+        }
+    }
+    fclose(f);
+    if (sum_n == 0) {
+        fprintf(stderr, "Error: bins file empty or invalid\n");
+        exit(1);
+    }
+
+    return pow(sum_r3n / sum_n, 1.0 / 3.0); // wet mean radius in m
+}
+
+double effective_radius(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        perror("Error with bins file opening");
+        exit(1);
+    }
+    char line[256];
+    double r_um_prev = 0.0, r_um_curr, n;
+    double sum_r3n = 0.0, sum_r2n = 0.0;
+    int first_line = 1;
+    fgets(line, sizeof(line), f);
+    while (fgets(line, sizeof(line), f)) {
+        if (sscanf(line, "%*[^,],%lf,%lf", &r_um_curr, &n) == 2) {
+            if (!first_line) {
+                double dr_m = (r_um_curr - r_um_prev) * 1e-6; // µm to m
+                double r_m = r_um_prev * 1e-6;               // µm to m
+                sum_r3n += n * pow(r_m, 3.0) * dr_m;
+                sum_r2n += n * pow(r_m, 2.0) * dr_m;
+            } else {
+                first_line = 0;
+            }
+            r_um_prev = r_um_curr;
+        }
+    }
+    fclose(f);
+    if (sum_r2n == 0.0) {
+        fprintf(stderr, "Error: sum r^2*n = 0\n");
+        exit(1);
+    }
+    return sum_r3n / sum_r2n; // r_eff in m
+}
+
+double compute_tau(double LWP, double re) {
+    double Qext = 2.0;
+    return (3.0/4.0) * Qext * (LWP / re);
+}
+
+double compute_albedo(double tau) {
+    double g = 0.85;
+    double a = 2.0;
+    return tau / (a/(1 - g) + tau);
+}
+
+int main() {
+    FILE *fin = fopen("aerosol_summary.csv", "r");
+    FILE *fout = fopen("optical_properties.csv", "w");
+    if (!fin || !fout) {
+        printf("Error: cannot open the file.\n");
+        return 1;
+    }
+    char line[256];
+    fgets(line, sizeof(line), fin);
+    fprintf(fout, "Aerosol,LWP,re,tau_c,Albedo\n");
+    while (fgets(line, sizeof(line), fin)) {
+        char aerosol[64];
+        double N_cm3, r_micron;
+        if (sscanf(line, "%63[^,],%lf,%lf", aerosol, &N_cm3, &r_micron) != 3)
+            continue;
+        double N = N_cm3 * 1e6;  // conversion cm^-3 to m^-3
+        double rv = r_v("bins.csv");
+        double re = effective_radius("bins.csv");
+        // Assumption h = 1000 m 
+        double h = 1000.0;
+        double LWP = compute_LWP(rv, N, h);
+        double tau_c = compute_tau(LWP, re);
+        double albedo = compute_albedo(tau_c);
+        fprintf(fout, "%s,%e,%e,%e,%e\n",
+                aerosol, LWP, re, tau_c, albedo);
+    }
+    fclose(fin);
+    fclose(fout);
+    printf("File optical_properties.csv created.\n");
+    return 0;
+}
+
+
