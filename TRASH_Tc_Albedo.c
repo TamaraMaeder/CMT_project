@@ -53,9 +53,9 @@ int main() {
 
         // a changer quand les LWP seront dans le csv----
         if (strcmp(aerosol, "sulfate") == 0) {
-            LWP = 2.254828;
+            LWP = 0.5;
         } else if (strcmp(aerosol, "sea salt") == 0) {
-            LWP = 7.95587;
+            LWP = 0.00795587;
         } else {
             LWP = 1.0; // default if unknown
         }
