@@ -1,6 +1,9 @@
 import pyrcel as pm
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import pandas as pd
+import csv
 
 # ----------1. BASIC RUN PYRCEL ----------
 P0 = 77500. # Pressure, Pa
@@ -48,13 +51,42 @@ LWC_sea_salt = rho_w * np.sum(N_bin_cm3_sea_salt * V_drop_sea_salt, axis=1)
 LWC_sulfate = rho_w * np.sum(N_bin_cm3_sulfate * V_drop_sulfate, axis=1)
 
 # === LWP : intégrale verticale de LWC (kg/m2)
-LWP_sea_salt = np.trapz(LWC_sea_salt, z)
-LWP_sulfate = np.trapz(LWC_sulfate, z)
+LWP_sea_salt = np.trapezoid(LWC_sea_salt, z)
+LWP_sulfate = np.trapezoid(LWC_sulfate, z)
 
 print("LWP of sea salt =", LWP_sea_salt, "kg/m²")
 print("LWP of sulfate =", LWP_sulfate, "kg/m²")
 
-##graph 
+#add to CSV file 
+
+#longer method
+
+# summary_csv = os.path.join(os.path.dirname(__file__), 'aerosol_summary.csv')
+# summary_df = pd.read_csv(summary_csv)
+# summary_df['Aerosol_key'] = summary_df['Aerosol'].astype(str).str.lower()
+
+# lwp_map = {
+#     'sulfate': float(LWP_sulfate),
+#     'sea salt': float(LWP_sea_salt)
+# }
+# summary_df['LWP_kg_m2'] = summary_df['Aerosol_key'].map(lwp_map)
+# summary_df = summary_df.drop(columns=['Aerosol_key'])
+# summary_df.to_csv(summary_csv, index=False)
+# print(f"Saved/updated aerosol summary -> {summary_csv}")
+
+# simple method 
+# summary_LWP = [
+#     ['sea salt', LWP_sea_salt],
+#     ['sulfate', LWP_sulfate]
+# ]
+
+# aerosols_sum = 'aerosols_summary.csv'
+# with open(aerosols_sum, 'a', newline='') as fichier:
+#     writer = csv.writer(fichier)
+#     for ligne in summary_LWP:
+#         writer.writerow(ligne)
+
+#graph 
 
 plt.figure(figsize=(7,5))
 plt.plot(LWC_sulfate, z, linewidth=2)

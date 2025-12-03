@@ -1,4 +1,3 @@
-Aerosol,CDNC,Mean_Radius_micron
-,Tc,Albedo
-sulfate,146.896181,1.972341,1.974020,0.128959
-sea salt,10.025748,12.780554,2.306919,0.147499
+Aerosol,LWP_kg_m2
+sulfate,2.2548281559328662e-08
+sea salt,7.955870144925142e-09
