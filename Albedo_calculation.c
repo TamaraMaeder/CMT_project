@@ -2,55 +2,88 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
-#define MAX_LINE 256
+/* Compute albedo from a CSV file that contains the wet radius and the number concentration of each bin for an aerosol :
+ *   Header: r[m],N[m^-3]
+ *   Rows:   r,N  (r in meters, N in m^-3)
+ *
+ * tau  = 2*pi * sum(r^2 * N)
+ * A    = tau / (a/(1-g) + tau), with g=0.85, a=2.0
+ *
+ * Returns:
+ *   - albedo in [0,1) on success
+ *   - NaN if the file cannot be opened or no valid rows are found
+ */
 
-double compute_albedo(double tau) {
-    double g = 0.85;
-    double a = 2.0;
-    return tau / (a / (1 - g) + tau);
-}
+double albedo(const char *csv_file_name) {
+    const double g = 0.85;
+    const double a = 2.0;
+    const double TWO_PI = 2.0 * 3.14159265358979323846;
 
-int main() {
-    FILE *input = fopen("aerosol_modes.csv", "r");
-    FILE *output = fopen("aerosol_modes_with_albedo.csv", "w");
-
-    if (!input || !output) {
-        perror("Error opening file");
-        return 1;
+    FILE *fp = fopen(csv_file_name, "r");
+    if (!fp) {
+        return NAN;
     }
 
-    char line[MAX_LINE];
-    int is_header = 1;
+    char line[1024];
+    double sum_r2N = 0.0;
+    int valid_rows = 0;
 
-    while (fgets(line, sizeof(line), input)) {
-        if (is_header) {
-            // Add new column name
-            fprintf(output, "%s,albedo\n", strtok(line, "\n"));
-            is_header = 0;
+    while (fgets(line, sizeof(line), fp)) {
+        // Skip the empty space
+        char *p = line;
+        while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') ++p;
+        if (*p == '\0') continue;  
+        // Find comma separating r and N
+        char *comma = strchr(p, ',');
+        if (!comma) {
             continue;
         }
-
-        char *token;
-        char *columns[7];
-        int col = 0;
-
-        token = strtok(line, ",");
-        while (token && col < 6) {
-            columns[col++] = token;
-            token = strtok(NULL, ",");
+        // Split r & N tokens and trim spaces around N token
+        *comma = '\0';
+        char *tok_r = p;
+        char *tok_N = comma + 1;
+        // Trim spaces at start of tok_N
+        while (*tok_N == ' ' || *tok_N == '\t') ++tok_N;
+        // Convert r into a double
+        char *end_r = NULL;
+        double r = strtod(tok_r, &end_r);
+        if (end_r == tok_r) {
+            /* Could not parse r (e.g., header "r[m]"); skip */
+            continue;
         }
-
-        double tau = atof(columns[5]);
-        double albedo = compute_albedo(tau);
-
-        // Write original columns + albedo
-        fprintf(output, "%s,%s,%s,%s,%s,%s,%.6f\n",
-                columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], albedo);
+        // Convert N into a double
+        char *end_N = NULL;
+        double N = strtod(tok_N, &end_N);
+        if (end_N == tok_N) {
+            continue;
+        }
+        // Ignore negative values of r and N
+        if (r < 0.0 || N < 0.0) {
+            continue;
+        }
+        sum_r2N += r * r * N;
+        valid_rows++;
     }
 
-    fclose(input);
-    fclose(output);
-    printf("Done! Check aerosol_modes_with_albedo.csv\n");
-    return 0;
+    fclose(fp);
+
+    if (valid_rows == 0) {
+        return NAN;
+    }
+
+    double tau = TWO_PI * sum_r2N;
+    double denom = a / (1.0 - g) + tau;
+    if (denom <= 0.0) {
+        return NAN;
+    }
+
+    double A = tau / denom;
+
+    // Control that that the albedo is in [0,1]
+    if (A < 0.0) A = 0.0;
+    if (A >= 1.0) A = nextafter(1.0, 0.0);
+
+    return A;
 }
