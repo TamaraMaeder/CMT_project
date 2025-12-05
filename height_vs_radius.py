@@ -63,10 +63,10 @@ axS.set_xlabel("Supersaturation, %")
 axT.set_xlabel("Temperature, K")
 axS.set_ylabel("Height, m")
 
-sulf_array = aerosol_traces['sulfate'].values
+sulf_array = aerosol_traces['sulfate'].values #wet radius in meters in aerosol_trace
 sea_array = aerosol_traces['sea salt'].values
 
-ss = axA.plot(sulf_array[:, ::10]*1e6, parcel_trace['z'], color=sul_c,
+ss = axA.plot(sulf_array[:, ::10]*1e6, parcel_trace['z'], color=sul_c, # values of radius * 10^6 to use micrometers
          label="sulfate")
 sa = axA.plot(sea_array*1e6, parcel_trace['z'], color=sea_c, label="sea salt")
 axA.semilogx()
