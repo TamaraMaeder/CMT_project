@@ -36,7 +36,7 @@ def load_aerosol_modes_csv(path):
 # chemin vers le CSV (même dossier que le script)
 csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
 modes = load_aerosol_modes_csv(csv_path)
-#print("Loaded aerosol modes:", modes)
+print("Loaded aerosol modes:", modes)
 
 
 def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., T=274., S=-0.02) -> None:
@@ -109,6 +109,9 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
 
     # show first figure
     fig1.tight_layout()
+    fig1_path = os.path.join(os.path.dirname(__file__), 'pyrcel_comparison.png')
+    fig1.savefig(fig1_path, dpi=150, bbox_inches='tight')
+    print(f"Saved Pyrcel figure -> {fig1_path}")
     fig1.show()
 
     # ---------- Figure 2 : Particula (PMF lines) ----------
@@ -149,8 +152,11 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
     ax2.legend(loc='upper right')
 
     fig2.tight_layout()
+    fig2_path = os.path.join(os.path.dirname(__file__), 'particula_comparison.png')
+    fig2.savefig(fig2_path, dpi=150, bbox_inches='tight')
+    print(f"Saved Particula figure -> {fig2_path}")
     fig2.show()
 
     return None
 
-print(logn_size_dist_compare_plot(modes,"Sea_salt_coarse","Sulfate_accum"))
+#print(logn_size_dist_compare_plot(modes,'Sulfate_accum','Sea_salt_coarse'))
