@@ -6,17 +6,18 @@ import os
 import csv
 
 class AerosolMode:
-    def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa):
+    def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa,nb_bins):
         self.name = str(name)
         self.origin = str(origin)
         self.N0_cm3 = float(N0_cm3)
         self.Dg_um = float(Dg_um)      # median diameter in µm (as in aerosol_modes.csv)
         self.sigma_g = float(sigma_g)
         self.kappa = float(kappa)
+        self.nb_bins =float(nb_bins)
 
     def __repr__(self):
         return (f"AerosolMode(name={self.name!r}, N0_cm3={self.N0_cm3}, "
-                f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa})")
+                f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa}, nb_bins={self.nb_bins})")
 
 def load_aerosol_modes_csv(path):
     modes = []
@@ -30,6 +31,7 @@ def load_aerosol_modes_csv(path):
                 row.get('Dg_um', '0'),
                 row.get('sigma_g', '1.0'),
                 row.get('kappa', '0.0'),
+                int(row.get('nb_bins', '0')),
             ))
     return modes
 
@@ -83,10 +85,10 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
 
     species1 = pc.AerosolSpecies(mode1.name,
                                 pc.Lognorm(mu=pyrcel_mu1, sigma=mode1.sigma_g, N=mode1.N0_cm3),
-                                kappa=mode1.kappa, bins=200)
+                                kappa=mode1.kappa, bins=mode1.nb_bins)
     species2 = pc.AerosolSpecies(mode2.name,
                                 pc.Lognorm(mu=pyrcel_mu2, sigma=mode2.sigma_g, N=mode2.N0_cm3),
-                                kappa=mode2.kappa, bins=200)
+                                kappa=mode2.kappa, bins=mode2.nb_bins)
 
     # ---------- Figure 1 : Pyrcel (bars) ----------
     fig1 = plt.figure(figsize=(10, 5))

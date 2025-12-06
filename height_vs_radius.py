@@ -11,17 +11,18 @@ import pandas as pd
 import csv
 
 class AerosolMode:
-    def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa):
+    def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa,nb_bins):
         self.name = str(name)
         self.origin = str(origin)
         self.N0_cm3 = float(N0_cm3)
         self.Dg_um = float(Dg_um)      # median diameter in µm (as in aerosol_modes.csv)
         self.sigma_g = float(sigma_g)
         self.kappa = float(kappa)
+        self.nb_bins =float(nb_bins)
 
     def __repr__(self):
         return (f"AerosolMode(name={self.name!r}, N0_cm3={self.N0_cm3}, "
-                f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa})")
+                f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa}, nb_bins={self.nb_bins})")
 
 def load_aerosol_modes_csv(path):
     modes = []
@@ -35,6 +36,7 @@ def load_aerosol_modes_csv(path):
                 row.get('Dg_um', '0'),
                 row.get('sigma_g', '1.0'),
                 row.get('kappa', '0.0'),
+                int(row.get('nb_bins', '0')),
             ))
     return modes
 
@@ -43,194 +45,142 @@ csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
 modes = load_aerosol_modes_csv(csv_path)
 print("Loaded aerosol modes:", modes)
 
-def height_vs_radius(modes: list, first: str, second: str, P=77500., T=274., S=-0.02) -> None:
-    """This fonction plots the height vs the supersaturation and the droplet radius of two aerosols. 
+def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0=-0.02, V=1.0, t_end=250., dt=1.0):
+    """
+    Plot height vs supersaturation and droplet radius for two aerosol modes from a parcel model run.
+    
     - modes: list of AerosolMode instances (from load_aerosol_modes_csv)
     - first, second: names of the two modes to compare (case-insensitive)
-    The plots of number concentration vs dry radius and number per bin vs dry radius are generated. 
-    The dict aer2 contains the following keys: name,origin,N0_cm3,Dg_um,sigma_g,kappa. 
-    The meteological conditions can be modified if necessary. By default, they are:  
-    P = 77500. # Pressure, Pa
-    T = 274.   # Temperature, K
-    S = -0.02  # Supersaturation, 1-RH (98% here)
-    It returns nothing but creates two csv files with the name of the aerosol and the values 
-    of aerosol number concentration and the droplet raduis associated for each height. 
-    """ 
-initial_aerosols = [sulfate, sea_salt]
-V = 1.0 # updraft speed, m/s
-
-dt = 1.0 # timestep, seconds
-t_end = 250./V # end time, seconds... 250 meter simulation
-
-model = pm.ParcelModel(initial_aerosols, V, T0, S0, P0, console=False, accom=0.3)
-parcel_trace, aerosol_traces = model.run(t_end, dt, solver='cvode')
-
-
-fig, [axS, axA] = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
-sul_c = "#CC0066"
-sea_c = "#0099FF"
-
-axS.plot(parcel_trace['S']*100., parcel_trace['z'], color='k', lw=2)
-axT = axS.twiny()
-axT.plot(parcel_trace['T'], parcel_trace['z'], color='r', lw=1.5)
-
-Smax = parcel_trace['S'].max()*100
-#z_at_smax = parcel_trace['z'].ix[parcel_trace['S'].argmax()]
-z_at_smax = parcel_trace['z'].loc[parcel_trace['S'].idxmax()]
-
-axS.annotate("max S = %0.2f%%" % Smax,
-             xy=(Smax, z_at_smax),
-             xytext=(Smax-0.3, z_at_smax+50.),
-             arrowprops=dict(arrowstyle="->", color='k',
-                             connectionstyle='angle3,angleA=0,angleB=90'),
-             zorder=10)
-
-axS.set_xlim(0, 0.7)
-axS.set_ylim(0, 250)
-
-axT.set_xticks([270, 271, 272, 273, 274])
-axT.xaxis.label.set_color('red')
-axT.tick_params(axis='x', colors='red')
-
-axS.set_xlabel("Supersaturation, %")
-axT.set_xlabel("Temperature, K")
-axS.set_ylabel("Height, m")
-
-sulf_array = aerosol_traces['sulfate'].values #wet radius in meters in aerosol_trace
-sea_array = aerosol_traces['sea salt'].values
-
-ss = axA.plot(sulf_array[:, ::10]*1e6, parcel_trace['z'], color=sul_c, # values of radius * 10^6 to use micrometers
-         label="sulfate")
-sa = axA.plot(sea_array*1e6, parcel_trace['z'], color=sea_c, label="sea salt")
-axA.semilogx()
-axA.set_xlim(1e-2, 10.)
-axA.set_xticks([1e-2, 1e-1, 1e0, 1e1], [0.01, 0.1, 1.0, 10.0])
-axA.legend([ss[0], sa[0]], ['sulfate', 'sea salt'], loc='upper right')
-axA.set_xlabel("Droplet radius, micron")
-
-for ax in [axS, axA, axT]:
-    ax.grid(False, 'both', 'both')
-
-plt.tight_layout()
-plt.show()
-
-
-def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., T=274., S=-0.02) -> None:
+    - P: Pressure (Pa), default 77500
+    - T0: Initial Temperature (K), default 274
+    - S0: Initial Supersaturation (1-RH), default -0.02
+    - V: Updraft speed (m/s), default 1.0
+    - t_end: End time (seconds), default 250 (or 250/V meters)
+    - dt: Timestep (seconds), default 1.0
+    
+    Returns: None
+    Creates two PNG figures and two CSV files (one per aerosol) with height, concentration, and radius data.
     """
-    Compare two aerosol modes (by name) from 'modes' using Pyrcel and Particula.
-    - modes: list of AerosolMode instances (from load_aerosol_modes_csv)
-    - first, second: names of the two modes to compare (case-insensitive)
-    The plots of number concentration vs dry radius and number per bin vs dry radius are generated. 
-    The dict aer2 contains the following keys: name,origin,N0_cm3,Dg_um,sigma_g,kappa. 
-    The meteological conditions can be modified if necessary. By default, they are:  
-    P = 77500. # Pressure, Pa
-    T = 274.   # Temperature, K
-    S = -0.02  # Supersaturation, 1-RH (98% here)
-    """
-
-    print("Please notice that Particula and Pyrcel have two different y-axis values even because " \
-    "Particula gives a probability mass function while Pyrcel gives a number concentration." \
-    "It means that Particula is plotting normalized values (area under the curve equals number of particles N)," \
-    " but not scaled to concentration units.")
-
+    
+    # Import AerosolMode class if not already in scope
+    import pyrcel as pc
+    from pyrcel import binned_activation
+    
     def find_mode_by_name(name):
         key = name.strip().lower()
         for m in modes:
-            # match ignoring underscores/spaces and case
             n = m.name.replace('_', ' ').lower()
             if n == key or m.name.lower() == key or m.name.replace('_', '').lower() == key.replace(' ', ''):
                 return m
         return None
-
+    
     mode1 = find_mode_by_name(first)
     mode2 = find_mode_by_name(second)
-
+    
     if mode1 is None:
-        raise ValueError(f"Mode '{first}' not found in modes (available: {[m.name for m in modes]})")
+        raise ValueError(f"Mode '{first}' not found")
     if mode2 is None:
-        raise ValueError(f"Mode '{second}' not found in modes (available: {[m.name for m in modes]})")
-
-    print(f"Plotting modes: {mode1.name} and {mode2.name}")
-
+        raise ValueError(f"Mode '{second}' not found")
+    
+    print(f"Running parcel model with {mode1.name} and {mode2.name}")
+    print(f"  P={P} Pa, T0={T0} K, S0={S0}, V={V} m/s, t_end={t_end} s")
+    
     # Create Pyrcel AerosolSpecies objects
-    # Pyrcel often expects mu as radius (µm) -> use Dg_um/2
     pyrcel_mu1 = mode1.Dg_um / 2.0
     pyrcel_mu2 = mode2.Dg_um / 2.0
-
+    
     species1 = pc.AerosolSpecies(mode1.name,
                                 pc.Lognorm(mu=pyrcel_mu1, sigma=mode1.sigma_g, N=mode1.N0_cm3),
                                 kappa=mode1.kappa, bins=200)
     species2 = pc.AerosolSpecies(mode2.name,
                                 pc.Lognorm(mu=pyrcel_mu2, sigma=mode2.sigma_g, N=mode2.N0_cm3),
                                 kappa=mode2.kappa, bins=200)
-
-    # ---------- Figure 1 : Pyrcel (bars) ----------
-    fig1 = plt.figure(figsize=(10, 5))
-    ax1 = fig1.add_subplot(111)
-    ax1.grid(False, "minor")
-
+    
+    initial_aerosols = [species1, species2]
+    
+    # Run parcel model
+    model = pc.ParcelModel(initial_aerosols, V, T0, S0, P, console=False, accom=0.3)
+    parcel_trace, aerosol_traces = model.run(t_end, dt, solver='cvode')
+    
+    # ---------- Figure 1 : Height vs Supersaturation + Droplet Radius ----------
+    fig1, (ax_S, ax_r) = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    
+    # Left plot: Supersaturation vs height
+    ax_S.plot(parcel_trace['S']*100., parcel_trace['z'], color='k', lw=2)
+    ax_S_T = ax_S.twiny()
+    ax_S_T.plot(parcel_trace['T'], parcel_trace['z'], color='r', lw=1.5)
+    
+    Smax = parcel_trace['S'].max() * 100
+    z_at_smax = parcel_trace['z'].iloc[parcel_trace['S'].argmax()]
+    ax_S.annotate("max S = %0.2f%%" % Smax,
+                  xy=(Smax, z_at_smax),
+                  xytext=(Smax-0.3, z_at_smax+50.),
+                  arrowprops=dict(arrowstyle="->", color='k',
+                                  connectionstyle='angle3,angleA=0,angleB=90'),
+                  zorder=10)
+    
+    ax_S.set_xlim(0, 0.7)
+    ax_S.set_ylim(0, t_end * V / 1.2)  # Scale to max height
+    ax_S_T.set_xticks([T0-2, T0-1, T0, T0+1])
+    ax_S_T.xaxis.label.set_color('red')
+    ax_S_T.tick_params(axis='x', colors='red')
+    ax_S.set_xlabel("Supersaturation, %")
+    ax_S_T.set_xlabel("Temperature, K")
+    ax_S.set_ylabel("Height, m")
+    ax_S.grid(False, 'both')
+    
+    # Right plot: Droplet radius vs height for both aerosols
+    sulf_array = aerosol_traces[mode1.name].values
+    sea_array = aerosol_traces[mode2.name].values
+    
     col1 = "#CC0066"
     col2 = "#0099FF"
-
-    ax1.bar(species1.rs[:-1], species1.Nis * 1e-6, np.diff(species1.rs),
-            color=col1, label=f"{mode1.name} (Pyrcel)", edgecolor=col1, alpha=0.7)
-    ax1.bar(species2.rs[:-1], species2.Nis * 1e-6, np.diff(species2.rs),
-            color=col2, label=f"{mode2.name} (Pyrcel)", edgecolor=col2, alpha=0.7)
-
-    ax1.set_xscale('log')
-    ax1.set_xlabel("Aerosol dry radius, micron")
-    ax1.set_ylabel("Pyrcel Aerosol number conc., cm$^{-3}$")
-    ax1.set_title(f"Pyrcel: {mode1.name} vs {mode2.name}")
-    ax1.legend(loc='upper right')
-
-    # show first figure
+    
+    ss = ax_r.plot(sulf_array[:, ::10]*1e6, parcel_trace['z'], color=col1, label=f"{mode1.name}")
+    sa = ax_r.plot(sea_array[:, ::10]*1e6, parcel_trace['z'], color=col2, label=f"{mode2.name}")
+    ax_r.set_xscale('log')
+    ax_r.set_xlim(1e-2, 100.)
+    ax_r.legend(loc='upper right')
+    ax_r.set_xlabel("Droplet radius, µm")
+    ax_r.grid(False, 'both')
+    
     fig1.tight_layout()
-    fig1_path = os.path.join(os.path.dirname(__file__), 'pyrcel_comparison.png')
+    fig1_path = os.path.join(os.path.dirname(__file__), 'height_vs_aerosol.png')
     fig1.savefig(fig1_path, dpi=150, bbox_inches='tight')
-    print(f"Saved Pyrcel figure -> {fig1_path}")
+    print(f"Saved figure -> {fig1_path}")
     fig1.show()
-
-    # ---------- Figure 2 : Particula (PMF lines) ----------
-    # Particula routines need diameters as input, but we will plot against radius
-    x_diam = np.logspace(-3, 1, 2000)  # diameters [µm]
-    r_vals = x_diam / 2.0              # convert diameters -> radii [µm] for plotting
-
-    # compute PMFs with Particula (pass diameters as required)
-    pmf1 = pm.particles.get_lognormal_pmf_distribution(
-        x_diam, np.array([mode1.Dg_um]), np.array([mode1.sigma_g]), np.array([mode1.N0_cm3])
-    )
-    pmf2 = pm.particles.get_lognormal_pmf_distribution(
-        x_diam, np.array([mode2.Dg_um]), np.array([mode2.sigma_g]), np.array([mode2.N0_cm3])
-    )
-
-    fig2 = plt.figure(figsize=(10, 6))
-    ax2 = fig2.add_subplot(111)
-    ax2.grid(True, "both")
-
-    # colors for Particula lines (kept distinct / slightly darker for contrast)
-    col1_part = "#8B004D"
-    col2_part = "#0077CC"
-
-    # Plot PMF vs RADIUS so it lines up with Pyrcel bars (which use rs in µm)
-    ax2.plot(r_vals, pmf1, color=col1_part, linestyle='-', linewidth=2.5,
-             label=f"{mode1.name} (Particula)")
-    ax2.plot(r_vals, pmf2, color=col2_part, linestyle='--', linewidth=2.5,
-             label=f"{mode2.name} (Particula)")
-
-    ax2.set_xscale('log')
-    ax2.set_xlabel("Particle radius (μm)")   # now radius, consistent with Pyrcel
-    ax2.set_ylabel("Particula PMF (arbitrary units)")
-    # force bottom of Particula axis to 0 (like Pyrcel)
-    ymin, ymax = ax2.get_ylim()
-    ax2.set_ylim(0, ymax)
-
-    ax2.set_title(f"Particula: {mode1.name} vs {mode2.name} (plotted vs radius)")
-    ax2.legend(loc='upper right')
-
-    fig2.tight_layout()
-    fig2_path = os.path.join(os.path.dirname(__file__), 'particula_comparison.png')
-    fig2.savefig(fig2_path, dpi=150, bbox_inches='tight')
-    print(f"Saved Particula figure -> {fig2_path}")
-    fig2.show()
-
+    
+    # ---------- Export CSV data for each aerosol ----------
+    ind_final = int(t_end/dt) - 1
+    T_final = parcel_trace['T'].iloc[ind_final]
+    
+    for aerosol_obj, aerosol_name in [(species1, mode1.name), (species2, mode2.name)]:
+        # Get trace for this aerosol
+        aerosol_trace = aerosol_traces[aerosol_name]
+        
+        # Calculate representative radius per bin
+        r_rep = 0.5 * (aerosol_obj.rs[:-1] + aerosol_obj.rs[1:])
+        
+        # Build CSV rows: height, concentration per bin, radius per bin
+        csv_rows = []
+        
+        for time_idx, z_val in enumerate(parcel_trace['z']):
+            # Get concentration for each bin at this height
+            conc_at_height = aerosol_trace.iloc[time_idx].values  # [bins]
+            
+            for bin_idx, (r_val, conc_val) in enumerate(zip(r_rep, conc_at_height)):
+                csv_rows.append({
+                    'height_m': z_val,
+                    'radius_micron': r_val,
+                    'concentration_m3': conc_val,  # already in #/m^3 from Pyrcel
+                })
+        
+        # Save to CSV
+        csv_df = pd.DataFrame(csv_rows)
+        csv_path = os.path.join(os.path.dirname(__file__), f'{aerosol_name.replace(" ", "_")}_profile.csv')
+        csv_df.to_csv(csv_path, index=False)
+        print(f"Saved {aerosol_name} profile -> {csv_path}")
+    
     return None
+
+print(plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse"))

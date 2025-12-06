@@ -15,6 +15,7 @@ typedef struct {
     double Dg_um;           // Geometric mean dry diameter [µm]
     double sigma_g;         // Geometric standard deviation
     double kappa;           // Hygroscopicity parameter κ
+    double nb_bins;            // number of bins for the lognormal distribution
 } AerosolMode;
 
 /* Convert enum -> string for writing in CSV */
@@ -36,12 +37,12 @@ int main(void) {
        ------------------------------------------------------------------ */
 
     AerosolMode modes[] = {
-        /*  name               origin               N0     Dg      sigma_g  kappa */
-        { "Sea_salt_coarse",    AEROSOL_NATURAL,        50.0,  0.80, 2.0,  1.2  },
-        { "Biogenic_OC",        AEROSOL_NATURAL,       300.0,  0.15, 1.6,  0.15 },
-        { "Sulfate_accum",      AEROSOL_ANTHROPOGENIC, 800.0,  0.10, 1.7,  0.54 },
-        { "Anthropogenic_OC",   AEROSOL_ANTHROPOGENIC, 400.0,  0.12, 1.6,  0.20 },
-        { "Black_carbon_fine",  AEROSOL_ANTHROPOGENIC, 200.0,  0.05, 1.5,  0.01 }
+        /*  name               origin               N0     Dg      sigma_g  kappa  nb_bins*/
+        { "Sea_salt_coarse",    AEROSOL_NATURAL,        50.0,  1.7, 2.0,  1.2 , 40 },
+        { "Biogenic_OC",        AEROSOL_NATURAL,       300.0,  0.15, 1.6,  0.15, 100 },
+        { "Sulfate_accum",      AEROSOL_ANTHROPOGENIC, 800.0,  0.03, 1.7,  0.54, 200 },
+        { "Anthropogenic_OC",   AEROSOL_ANTHROPOGENIC, 400.0,  0.12, 1.6,  0.20, 100},
+        { "Black_carbon_fine",  AEROSOL_ANTHROPOGENIC, 200.0,  0.05, 1.5,  0.01, 100 }
     };
 
     size_t n_modes = sizeof(modes) / sizeof(modes[0]);
@@ -61,7 +62,7 @@ int main(void) {
        3. Write the CSV header
        ------------------------------------------------------------------ */
 
-    fprintf(f, "name,origin,N0_cm3,Dg_um,sigma_g,kappa\n");
+    fprintf(f, "name,origin,N0_cm3,Dg_um,sigma_g,kappa,nb_bins\n");
 
     /* ------------------------------------------------------------------
        4. Write all aerosol modes (one per line)
@@ -70,13 +71,14 @@ int main(void) {
     for (size_t i = 0; i < n_modes; ++i) {
         AerosolMode *m = &modes[i];
         fprintf(f,
-                "%s,%s,%.6g,%.6g,%.6g,%.6g\n",
+                "%s,%s,%.6g,%.6g,%.6g,%.6g,%.6g\n",
                 m->name,
                 origin_to_string(m->origin),
                 m->N0_cm3,
                 m->Dg_um,
                 m->sigma_g,
-                m->kappa);
+                m->kappa,
+                m->nb_bins);
     }
 
     /* ------------------------------------------------------------------
