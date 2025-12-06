@@ -5,13 +5,6 @@ import numpy as np
 import os
 import csv
 
-sulfate =  pc.AerosolSpecies('sulfate',
-                             pc.Lognorm(mu=0.015, sigma=1.6, N=850.),
-                             kappa=0.54, bins=200)
-sea_salt = pc.AerosolSpecies('sea salt',
-                             pc.Lognorm(mu=0.85, sigma=1.2, N=10),
-                             kappa=1.2, bins=200)
-
 class AerosolMode:
     def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa):
         self.name = str(name)
@@ -43,7 +36,7 @@ def load_aerosol_modes_csv(path):
 # chemin vers le CSV (même dossier que le script)
 csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
 modes = load_aerosol_modes_csv(csv_path)
-print("Loaded aerosol modes:", modes)
+#print("Loaded aerosol modes:", modes)
 
 
 def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., T=274., S=-0.02) -> None:
@@ -159,3 +152,5 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
     fig2.show()
 
     return None
+
+print(logn_size_dist_compare_plot(modes,"Sea_salt_coarse","Sulfate_accum"))

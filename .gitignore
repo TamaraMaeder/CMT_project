@@ -294,10 +294,7 @@ __marimo__/
 
 .DS_Store
 
-aerosol_modes.csv
 aerosol_summary.csv.bak
-aerosol_traces.csv
-bins.csv
 parcel_trace.csv
 TRASH_aerosol_summary.csv
 TRASH_aerosols_summary.csv
