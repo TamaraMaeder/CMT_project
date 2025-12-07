@@ -3,7 +3,7 @@ import warnings
 warnings.simplefilter('ignore')
 import os
 os.environ['OMP_NESTED'] = 'FALSE'  # Desactive OpenMP warning
-import pyrcel as pm
+import pyrcel as pc
 import numpy as np
 import matplotlib.pyplot as plt
 from pyrcel import binned_activation

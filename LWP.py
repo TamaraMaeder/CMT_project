@@ -1,4 +1,4 @@
-import pyrcel as pm
+import pyrcel as pc
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -10,11 +10,11 @@ P0 = 77500. # Pressure, Pa
 T0 = 274.   # Temperature, K
 S0 = -0.02  # Supersaturation, 1-RH (98% here)
 
-sulfate =  pm.AerosolSpecies('sulfate',
-                             pm.Lognorm(mu=0.015, sigma=1.6, N=850.),
+sulfate =  pc.AerosolSpecies('sulfate',
+                             pc.Lognorm(mu=0.015, sigma=1.6, N=850.),
                              kappa=0.54, bins=200)
-sea_salt = pm.AerosolSpecies('sea salt',
-                             pm.Lognorm(mu=0.85, sigma=1.2, N=10.),
+sea_salt = pc.AerosolSpecies('sea salt',
+                             pc.Lognorm(mu=0.85, sigma=1.2, N=10.),
                              kappa=1.2, bins=40)
 
 initial_aerosols = [sulfate, sea_salt]
@@ -23,7 +23,7 @@ V = 1.0 # updraft speed, m/s
 dt = 1.0 # timestep, seconds
 t_end = 250./V # end time, seconds... 250 meter simulation
 
-model = pm.ParcelModel(initial_aerosols, V, T0, S0, P0, console=False, accom=0.3)
+model = pc.ParcelModel(initial_aerosols, V, T0, S0, P0, console=False, accom=0.3)
 parcel_trace, aerosol_traces = model.run(t_end, dt, solver='cvode')
 
 Smax = parcel_trace['S'].max()*100
