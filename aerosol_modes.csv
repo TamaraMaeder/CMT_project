@@ -1,6 +1,6 @@
 name,origin,N0_cm3,Dg_um,sigma_g,kappa,nb_bins
-Sea_salt_coarse,natural,50,1.7,2,1.2,40
+Sea_salt_coarse,natural,10,1.7,2,1.2,40
 Biogenic_OC,natural,300,0.15,1.6,0.15,100
-Sulfate_accum,anthropogenic,800,0.03,1.7,0.54,200
+Sulfate_accum,anthropogenic,850,0.03,1.7,0.54,200
 Anthropogenic_OC,anthropogenic,400,0.12,1.6,0.2,100
 Black_carbon_fine,anthropogenic,200,0.05,1.5,0.01,100

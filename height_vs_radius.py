@@ -83,6 +83,8 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
         raise ValueError(f"Mode '{second}' not found")
     
     print(f"Running parcel model with {mode1.name} and {mode2.name}")
+    print(f"mode1:", mode1)
+    print(f"mode2:", mode2)
     print(f"  P={P} Pa, T0={T0} K, S0={S0}, V={V} m/s, t_end={t_end} s")
     
     # Create Pyrcel AerosolSpecies objects
@@ -97,7 +99,8 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
                                 kappa=mode2.kappa, bins=200)
     
     initial_aerosols = [species1, species2]
-    
+    print(f"initial_aerosols=", initial_aerosols)
+
     # Run parcel model
     model = pc.ParcelModel(initial_aerosols, V, T0, S0, P, console=False, accom=0.3)
     parcel_trace, aerosol_traces = model.run(t_end, dt, solver='cvode')
@@ -120,7 +123,8 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
                   zorder=10)
     
     ax_S.set_xlim(0, 0.7)
-    ax_S.set_ylim(0, t_end * V / 1.2)  # Scale to max height
+    # ax_S.set_ylim(0, t_end * V / 1.2)  # Scale to max height
+    ax_S.set_ylim(0,250)
     ax_S_T.set_xticks([T0-2, T0-1, T0, T0+1])
     ax_S_T.xaxis.label.set_color('red')
     ax_S_T.tick_params(axis='x', colors='red')
@@ -130,14 +134,16 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
     ax_S.grid(False, 'both')
     
     # Right plot: Droplet radius vs height for both aerosols
-    sulf_array = aerosol_traces[mode1.name].values
-    sea_array = aerosol_traces[mode2.name].values
+    aerosol_1_array = aerosol_traces[mode1.name].values
+    aerosol_2_array = aerosol_traces[mode2.name].values
     
     col1 = "#CC0066"
     col2 = "#0099FF"
     
-    ss = ax_r.plot(sulf_array[:, ::10]*1e6, parcel_trace['z'], color=col1, label=f"{mode1.name}")
-    sa = ax_r.plot(sea_array[:, ::10]*1e6, parcel_trace['z'], color=col2, label=f"{mode2.name}")
+    ss = ax_r.plot(aerosol_1_array[:, ::10]*1e6, parcel_trace['z'], color=col1)
+    sa = ax_r.plot(aerosol_2_array[:, ::10]*1e6, parcel_trace['z'], color=col2)
+    ax_r.plot([], [], color=col1, label=mode1.name)
+    ax_r.plot([], [], color=col2, label=mode2.name)
     ax_r.set_xscale('log')
     ax_r.set_xlim(1e-2, 100.)
     ax_r.legend(loc='upper right')
@@ -145,7 +151,8 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
     ax_r.grid(False, 'both')
     
     fig1.tight_layout()
-    fig1_path = os.path.join(os.path.dirname(__file__), 'height_vs_aerosol.png')
+    fname = f"height_vs_{mode1.name.replace(' ', '_')}_vs_{mode2.name.replace(' ', '_')}.png"
+    fig1_path = os.path.join(os.path.dirname(__file__), fname)
     fig1.savefig(fig1_path, dpi=150, bbox_inches='tight')
     print(f"Saved figure -> {fig1_path}")
     fig1.show()

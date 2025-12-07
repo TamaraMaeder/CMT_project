@@ -38,9 +38,9 @@ int main(void) {
 
     AerosolMode modes[] = {
         /*  name               origin               N0     Dg      sigma_g  kappa  nb_bins*/
-        { "Sea_salt_coarse",    AEROSOL_NATURAL,        50.0,  1.7, 2.0,  1.2 , 40 },
+        { "Sea_salt_coarse",    AEROSOL_NATURAL,        10.0,  1.7, 2.0,  1.2 , 40 },
         { "Biogenic_OC",        AEROSOL_NATURAL,       300.0,  0.15, 1.6,  0.15, 100 },
-        { "Sulfate_accum",      AEROSOL_ANTHROPOGENIC, 800.0,  0.03, 1.7,  0.54, 200 },
+        { "Sulfate_accum",      AEROSOL_ANTHROPOGENIC, 850.0,  0.03, 1.7,  0.54, 200 },
         { "Anthropogenic_OC",   AEROSOL_ANTHROPOGENIC, 400.0,  0.12, 1.6,  0.20, 100},
         { "Black_carbon_fine",  AEROSOL_ANTHROPOGENIC, 200.0,  0.05, 1.5,  0.01, 100 }
     };
