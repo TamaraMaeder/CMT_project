@@ -9,6 +9,7 @@ This script:
 
 AI help from: Particula Assistant
 """
+kohler.critical_radius()
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -100,3 +101,5 @@ plt.title('CCN Activation Spectrum (Sulfate + Organics)')
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+
+

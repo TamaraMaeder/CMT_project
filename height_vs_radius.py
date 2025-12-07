@@ -172,14 +172,18 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
         csv_rows = []
         
         for time_idx, z_val in enumerate(parcel_trace['z']):
-            # Get concentration for each bin at this height
-            conc_at_height = aerosol_trace.iloc[time_idx].values  # [bins]
+            # r_wet at a certain time
+            r_wet_bins = aerosol_trace.iloc[time_idx].values  # in meters 
             
-            for bin_idx, (r_val, conc_val) in enumerate(zip(r_rep, conc_at_height)):
+            # Nis doesn't depend on time
+            conc_bins = aerosol_obj.Nis 
+
+            for bin_idx, (r_wet, conc_val) in enumerate(zip(r_wet_bins, conc_bins)):
                 csv_rows.append({
                     'height_m': z_val,
-                    'radius_micron': r_val,
-                    'concentration_m3': conc_val,  # already in #/m^3 from Pyrcel
+                    'bin_index': bin_idx,
+                    'r_wet_m': r_wet,
+                    'number_concentration_m3': conc_val,
                 })
         
         # Save to CSV
