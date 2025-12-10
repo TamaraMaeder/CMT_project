@@ -10,6 +10,10 @@ from pyrcel import binned_activation
 import pandas as pd
 import csv
 
+from def_class import AerosolMode 
+from def_class import load_aerosol_modes_csv
+from logn_size_dist_compare import logn_size_dist_compare_plot
+
 class AerosolMode:
     def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa,nb_bins):
         self.name = str(name)
@@ -40,7 +44,7 @@ def load_aerosol_modes_csv(path):
             ))
     return modes
 
-# chemin vers le CSV (même dossier que le script)
+#chemin vers le CSV (même dossier que le script)
 csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
 modes = load_aerosol_modes_csv(csv_path)
 print("Loaded aerosol modes:", modes)
@@ -195,3 +199,28 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
     return None
 
 print(plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse"))
+
+
+# def main():
+#     csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
+#     modes = load_aerosol_modes_csv(csv_path)
+#     #print("Loaded aerosol modes:", modes)   
+
+#     ##plot the lognormal size distribution for all the simulations 
+
+#     #logn_size_dist_compare_plot(modes,"Sulfate_accum","Sea_salt_coarse")
+#     #logn_size_dist_compare_plot(modes,"Biogenic_OC","Sea_salt_coarse")
+#     #logn_size_dist_compare_plot(modes,"Biogenic_OC","Anthropogenic_OC")
+#     #logn_size_dist_compare_plot(modes,"Sea_salt_coarse","Black_carbon_fine")
+
+#     ##run the simulations of the activation of cloud droplets, create the csv and plot the height vs wet radius for each
+
+#     #plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse")
+#     plot_height_vs_aerosol(modes,"Biogenic_OC","Sea_salt_coarse")
+#     #plot_height_vs_aerosol(modes,"Biogenic_OC","Anthropogenic_OC")
+#     #plot_height_vs_aerosol(modes,"Sea_salt_coarse","Black_carbon_fine")
+
+#     return 0
+
+# if __name__=="__main__":
+#     main()

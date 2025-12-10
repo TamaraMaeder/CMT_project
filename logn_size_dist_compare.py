@@ -4,36 +4,39 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import csv
+from def_class import AerosolMode 
+from def_class import load_aerosol_modes_csv
 
-class AerosolMode:
-    def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa,nb_bins):
-        self.name = str(name)
-        self.origin = str(origin)
-        self.N0_cm3 = float(N0_cm3)
-        self.Dg_um = float(Dg_um)      # median diameter in µm (as in aerosol_modes.csv)
-        self.sigma_g = float(sigma_g)
-        self.kappa = float(kappa)
-        self.nb_bins =float(nb_bins)
 
-    def __repr__(self):
-        return (f"AerosolMode(name={self.name!r}, N0_cm3={self.N0_cm3}, "
-                f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa}, nb_bins={self.nb_bins})")
+# class AerosolMode:
+#     def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa,nb_bins):
+#         self.name = str(name)
+#         self.origin = str(origin)
+#         self.N0_cm3 = float(N0_cm3)
+#         self.Dg_um = float(Dg_um)      # median diameter in µm (as in aerosol_modes.csv)
+#         self.sigma_g = float(sigma_g)
+#         self.kappa = float(kappa)
+#         self.nb_bins =float(nb_bins)
 
-def load_aerosol_modes_csv(path):
-    modes = []
-    with open(path, newline='', encoding='utf-8') as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
-            modes.append(AerosolMode(
-                row.get('name', '').strip(),
-                row.get('origin', '').strip(),
-                row.get('N0_cm3', '0'),
-                row.get('Dg_um', '0'),
-                row.get('sigma_g', '1.0'),
-                row.get('kappa', '0.0'),
-                int(row.get('nb_bins', '0')),
-            ))
-    return modes
+#     def __repr__(self):
+#         return (f"AerosolMode(name={self.name!r}, N0_cm3={self.N0_cm3}, "
+#                 f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa}, nb_bins={self.nb_bins})")
+
+# def load_aerosol_modes_csv(path):
+#     modes = []
+#     with open(path, newline='', encoding='utf-8') as fh:
+#         reader = csv.DictReader(fh)
+#         for row in reader:
+#             modes.append(AerosolMode(
+#                 row.get('name', '').strip(),
+#                 row.get('origin', '').strip(),
+#                 row.get('N0_cm3', '0'),
+#                 row.get('Dg_um', '0'),
+#                 row.get('sigma_g', '1.0'),
+#                 row.get('kappa', '0.0'),
+#                 int(row.get('nb_bins', '0')),
+#             ))
+#     return modes
 
 # chemin vers le CSV (même dossier que le script)
 csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
@@ -154,11 +157,12 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
     ax2.legend(loc='upper right')
 
     fig2.tight_layout()
-    fig2_path = os.path.join(os.path.dirname(__file__), 'particula_comparison.png')
+    fig2_path = os.path.join(os.path.dirname(__file__), f'particula_comparison_{mode1.name} vs {mode2.name}.png')
     fig2.savefig(fig2_path, dpi=150, bbox_inches='tight')
     print(f"Saved Particula figure -> {fig2_path}")
     fig2.show()
 
     return None
 
-#print(logn_size_dist_compare_plot(modes,'Sulfate_accum','Sea_salt_coarse'))
+print(logn_size_dist_compare_plot(modes,'Sulfate_accum','Sea_salt_coarse'))
+
