@@ -78,7 +78,7 @@ The third category contains the timescale and updraft speed. These are used to r
 * End time: t_end= 250 s 
 * Timestep: dt =1.0 s.
 
-Finally the last catgory of input is the fitting parameters used to calculate the albedo in the C program: Albedo_func.c. They are: 
+Finally the last catgory of input is the fitting parameters used to calculate the albedo in the C program: Albedo_fct.c. They are: 
 * const double g = 0.85
 * const double a = 2.0
 * const double TWO_PI = 2.0 * 3.14159265358979323846
