@@ -9,7 +9,7 @@ class AerosolMode:
         self.Dg_um = float(Dg_um)      # median diameter in µm (as in aerosol_modes.csv)
         self.sigma_g = float(sigma_g)
         self.kappa = float(kappa)
-        self.nb_bins =float(nb_bins)
+        self.nb_bins =int(nb_bins)
 
     def __repr__(self):
         return (f"AerosolMode(name={self.name!r}, N0_cm3={self.N0_cm3}, "

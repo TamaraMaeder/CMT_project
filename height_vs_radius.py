@@ -154,9 +154,13 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
     ax_r.set_xlabel("Droplet radius, µm")
     ax_r.grid(False, 'both')
     
+    BASE_DIR = os.path.dirname(__file__)  
+    RESULTS_DIR = os.path.join(BASE_DIR, "results")
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+
     fig1.tight_layout()
     fname = f"height_vs_{mode1.name.replace(' ', '_')}_vs_{mode2.name.replace(' ', '_')}.png"
-    fig1_path = os.path.join(os.path.dirname(__file__), fname)
+    fig1_path = os.path.join(RESULTS_DIR, fname)
     fig1.savefig(fig1_path, dpi=150, bbox_inches='tight')
     print(f"Saved figure -> {fig1_path}")
     fig1.show()
@@ -191,36 +195,38 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
                 })
         
         # Save to CSV
+        DATA_DIR = os.path.join(BASE_DIR, "data")
+        os.makedirs(DATA_DIR, exist_ok=True)
         csv_df = pd.DataFrame(csv_rows)
-        csv_path = os.path.join(os.path.dirname(__file__), f'{aerosol_name.replace(" ", "_")}_profile.csv')
+        csv_path = os.path.join(DATA_DIR, f'{aerosol_name.replace(" ", "_")}_profile_for_{first}_and_{second}_simulation.csv')
         csv_df.to_csv(csv_path, index=False)
         print(f"Saved {aerosol_name} profile -> {csv_path}")
     
     return None
 
-print(plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse"))
+#print(plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse"))
 
 
-# def main():
-#     csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
-#     modes = load_aerosol_modes_csv(csv_path)
-#     #print("Loaded aerosol modes:", modes)   
+def main():
+    csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
+    modes = load_aerosol_modes_csv(csv_path)
+    #print("Loaded aerosol modes:", modes)   
 
-#     ##plot the lognormal size distribution for all the simulations 
+    ##plot the lognormal size distribution for all the simulations 
 
-#     #logn_size_dist_compare_plot(modes,"Sulfate_accum","Sea_salt_coarse")
-#     #logn_size_dist_compare_plot(modes,"Biogenic_OC","Sea_salt_coarse")
-#     #logn_size_dist_compare_plot(modes,"Biogenic_OC","Anthropogenic_OC")
-#     #logn_size_dist_compare_plot(modes,"Sea_salt_coarse","Black_carbon_fine")
+    logn_size_dist_compare_plot(modes,"Sulfate_accum","Sea_salt_coarse")
+    logn_size_dist_compare_plot(modes,"Biogenic_OC","Sea_salt_coarse")
+    logn_size_dist_compare_plot(modes,"Biogenic_OC","Anthropogenic_OC")
+    logn_size_dist_compare_plot(modes,"Sea_salt_coarse","Black_carbon_fine")
 
-#     ##run the simulations of the activation of cloud droplets, create the csv and plot the height vs wet radius for each
+    ##run the simulations of the activation of cloud droplets, create the csv and plot the height vs wet radius for each
 
-#     #plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse")
-#     plot_height_vs_aerosol(modes,"Biogenic_OC","Sea_salt_coarse")
-#     #plot_height_vs_aerosol(modes,"Biogenic_OC","Anthropogenic_OC")
-#     #plot_height_vs_aerosol(modes,"Sea_salt_coarse","Black_carbon_fine")
+    plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse")
+    plot_height_vs_aerosol(modes,"Biogenic_OC","Sea_salt_coarse")
+    plot_height_vs_aerosol(modes,"Biogenic_OC","Anthropogenic_OC")
+    plot_height_vs_aerosol(modes,"Sea_salt_coarse","Black_carbon_fine")
 
-#     return 0
+    return 0
 
-# if __name__=="__main__":
-#     main()
+if __name__=="__main__":
+    main()

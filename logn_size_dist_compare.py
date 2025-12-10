@@ -39,9 +39,9 @@ from def_class import load_aerosol_modes_csv
 #     return modes
 
 # chemin vers le CSV (même dossier que le script)
-csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
-modes = load_aerosol_modes_csv(csv_path)
-print("Loaded aerosol modes:", modes)
+# csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
+# modes = load_aerosol_modes_csv(csv_path)
+# print("Loaded aerosol modes:", modes)
 
 
 def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., T=274., S=-0.02) -> None:
@@ -88,10 +88,10 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
 
     species1 = pc.AerosolSpecies(mode1.name,
                                 pc.Lognorm(mu=pyrcel_mu1, sigma=mode1.sigma_g, N=mode1.N0_cm3),
-                                kappa=mode1.kappa, bins=mode1.nb_bins)
+                                kappa=mode1.kappa, bins=int(mode1.nb_bins))
     species2 = pc.AerosolSpecies(mode2.name,
                                 pc.Lognorm(mu=pyrcel_mu2, sigma=mode2.sigma_g, N=mode2.N0_cm3),
-                                kappa=mode2.kappa, bins=mode2.nb_bins)
+                                kappa=mode2.kappa, bins=int(mode2.nb_bins))
 
     # ---------- Figure 1 : Pyrcel (bars) ----------
     fig1 = plt.figure(figsize=(10, 5))
@@ -113,8 +113,12 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
     ax1.legend(loc='upper right')
 
     # show first figure
+    BASE_DIR = os.path.dirname(__file__) 
+    RESULTS_DIR = os.path.join(BASE_DIR, "results")
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+
     fig1.tight_layout()
-    fig1_path = os.path.join(os.path.dirname(__file__), 'pyrcel_comparison.png')
+    fig1_path = os.path.join(RESULTS_DIR, f'pyrcel_comparison_{mode1.name} vs {mode2.name}.png')
     fig1.savefig(fig1_path, dpi=150, bbox_inches='tight')
     print(f"Saved Pyrcel figure -> {fig1_path}")
     fig1.show()
@@ -157,12 +161,12 @@ def logn_size_dist_compare_plot(modes: list, first: str, second: str, P=77500., 
     ax2.legend(loc='upper right')
 
     fig2.tight_layout()
-    fig2_path = os.path.join(os.path.dirname(__file__), f'particula_comparison_{mode1.name} vs {mode2.name}.png')
+    fig2_path = os.path.join(RESULTS_DIR, f'particula_comparison_{mode1.name} vs {mode2.name}.png')
     fig2.savefig(fig2_path, dpi=150, bbox_inches='tight')
     print(f"Saved Particula figure -> {fig2_path}")
     fig2.show()
 
     return None
 
-print(logn_size_dist_compare_plot(modes,'Sulfate_accum','Sea_salt_coarse'))
+#print(logn_size_dist_compare_plot(modes,'Sulfate_accum','Sea_salt_coarse'))
 
