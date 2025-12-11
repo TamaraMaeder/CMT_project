@@ -116,6 +116,9 @@ _Templates for .tex and .odt formats are provided in "docs/". The formatting can
 ### Build
 
 _Describe how the C program should be compiled (using gcc or mex). The executable or shared object file can be placed in the "bin/" directory._ 
+To compile the C programs, use `gcc` to build the main workflow and the albedo function together. From the project root:
+```bash
+gcc AppliedFct_to_aerosols.c Albedo_fct.c && ./a.out
 
 ### Execute
 
