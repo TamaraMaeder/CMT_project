@@ -9,45 +9,23 @@ import matplotlib.pyplot as plt
 from pyrcel import binned_activation
 import pandas as pd
 import csv
+from pathlib import Path
 
-from def_class import AerosolMode 
-from def_class import load_aerosol_modes_csv
+from def_class import AerosolMode, load_aerosol_modes_csv
 from logn_size_dist_compare import logn_size_dist_compare_plot
 
-class AerosolMode:
-    def __init__(self, name, origin, N0_cm3, Dg_um, sigma_g, kappa,nb_bins):
-        self.name = str(name)
-        self.origin = str(origin)
-        self.N0_cm3 = float(N0_cm3)
-        self.Dg_um = float(Dg_um)      # median diameter in µm (as in aerosol_modes.csv)
-        self.sigma_g = float(sigma_g)
-        self.kappa = float(kappa)
-        self.nb_bins =float(nb_bins)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
-    def __repr__(self):
-        return (f"AerosolMode(name={self.name!r}, N0_cm3={self.N0_cm3}, "
-                f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa}, nb_bins={self.nb_bins})")
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(RESULTS_DIR, exist_ok=True)
 
-def load_aerosol_modes_csv(path):
-    modes = []
-    with open(path, newline='', encoding='utf-8') as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
-            modes.append(AerosolMode(
-                row.get('name', '').strip(),
-                row.get('origin', '').strip(),
-                row.get('N0_cm3', '0'),
-                row.get('Dg_um', '0'),
-                row.get('sigma_g', '1.0'),
-                row.get('kappa', '0.0'),
-                int(row.get('nb_bins', '0')),
-            ))
-    return modes
 
-#chemin vers le CSV (même dossier que le script)
-csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
-modes = load_aerosol_modes_csv(csv_path)
-print("Loaded aerosol modes:", modes)
+# #chemin vers le CSV (même dossier que le script)
+# csv_path = os.path.join(os.path.dirname(DATA_DIR), 'aerosol_modes.csv')
+# modes = load_aerosol_modes_csv(csv_path)
+# print("Loaded aerosol modes:", modes)
 
 def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0=-0.02, V=1.0, t_end=250., dt=1.0):
     """
@@ -153,9 +131,7 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
     ax_r.legend(loc='upper right')
     ax_r.set_xlabel("Droplet radius, µm")
     ax_r.grid(False, 'both')
-    
-    BASE_DIR = os.path.dirname(__file__)  
-    RESULTS_DIR = os.path.join(BASE_DIR, "results")
+
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
     fig1.tight_layout()
@@ -193,9 +169,8 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
                     'r_wet_m': r_wet,
                     'number_concentration_m3': conc_val,
                 })
-        
+
         # Save to CSV
-        DATA_DIR = os.path.join(BASE_DIR, "data")
         os.makedirs(DATA_DIR, exist_ok=True)
         csv_df = pd.DataFrame(csv_rows)
         csv_path = os.path.join(DATA_DIR, f'{aerosol_name.replace(" ", "_")}_profile_for_{first}_and_{second}_simulation.csv')
@@ -208,9 +183,17 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
 
 
 def main():
-    csv_path = os.path.join(os.path.dirname(__file__), 'aerosol_modes.csv')
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+    RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
+    os.makedirs(DATA_DIR, exist_ok=True)
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+
+    csv_path = os.path.join(DATA_DIR, 'aerosol_modes.csv')
     modes = load_aerosol_modes_csv(csv_path)
-    #print("Loaded aerosol modes:", modes)   
+    print("Loaded aerosol modes:", modes)
+
 
     ##plot the lognormal size distribution for all the simulations 
 

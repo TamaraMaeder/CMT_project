@@ -9,13 +9,13 @@ typedef enum {
 
 /* Base structure for a lognormal aerosol mode */
 typedef struct {
-    const char *name;       // Name of the mode (e.g., "Sulfate_accum")
-    AerosolOrigin origin;   // Natural / Anthropogenic
-    double N0_cm3;          // Total number concentration [#/cm^3]
-    double Dg_um;           // Geometric mean dry diameter [µm]
-    double sigma_g;         // Geometric standard deviation
-    double kappa;           // Hygroscopicity parameter κ
-    double nb_bins;            // number of bins for the lognormal distribution
+    const char *name;
+    AerosolOrigin origin;
+    double N0_cm3;
+    double Dg_um;
+    double sigma_g;
+    double kappa;
+    double nb_bins;
 } AerosolMode;
 
 /* Convert enum -> string for writing in CSV */
@@ -30,18 +30,27 @@ const char *origin_to_string(AerosolOrigin origin) {
     }
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+
+    /* ------------------------------------------------------------------
+       0. Check arguments
+       ------------------------------------------------------------------ */
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <output_csv_path>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    const char *filename = argv[1];
+
     /* ------------------------------------------------------------------
        1. Definition of aerosol modes
-          (EXAMPLE values; adjust according to literature/data needs)
        ------------------------------------------------------------------ */
 
     AerosolMode modes[] = {
-        /*  name               origin               N0     Dg      sigma_g  kappa  nb_bins*/
-        { "Sea_salt_coarse",    AEROSOL_NATURAL,        10.0,  1.7, 2.0,  1.2 , 40 },
+        { "Sea_salt_coarse",    AEROSOL_NATURAL,        10.0,  1.7,  2.0,  1.2,  40  },
         { "Biogenic_OC",        AEROSOL_NATURAL,       300.0,  0.15, 1.6,  0.15, 100 },
         { "Sulfate_accum",      AEROSOL_ANTHROPOGENIC, 850.0,  0.03, 1.7,  0.54, 200 },
-        { "Anthropogenic_OC",   AEROSOL_ANTHROPOGENIC, 400.0,  0.12, 1.6,  0.20, 100},
+        { "Anthropogenic_OC",   AEROSOL_ANTHROPOGENIC, 400.0,  0.12, 1.6,  0.20, 100 },
         { "Black_carbon_fine",  AEROSOL_ANTHROPOGENIC, 200.0,  0.05, 1.5,  0.01, 100 }
     };
 
@@ -51,7 +60,6 @@ int main(void) {
        2. Open the CSV file for writing
        ------------------------------------------------------------------ */
 
-    const char *filename = "aerosol_modes.csv";
     FILE *f = fopen(filename, "w");
     if (f == NULL) {
         perror("Error while opening the CSV file");
@@ -65,13 +73,13 @@ int main(void) {
     fprintf(f, "name,origin,N0_cm3,Dg_um,sigma_g,kappa,nb_bins\n");
 
     /* ------------------------------------------------------------------
-       4. Write all aerosol modes (one per line)
+       4. Write all aerosol modes
        ------------------------------------------------------------------ */
 
     for (size_t i = 0; i < n_modes; ++i) {
         AerosolMode *m = &modes[i];
         fprintf(f,
-                "%s,%s,%.6g,%.6g,%.6g,%.6g,%.6g\n",
+                "%s,%s,%.6g,%.6g,%.6g,%.6g,%.0f\n",
                 m->name,
                 origin_to_string(m->origin),
                 m->N0_cm3,
@@ -85,12 +93,9 @@ int main(void) {
        5. Close the file
        ------------------------------------------------------------------ */
 
-    if (fclose(f) != 0) {
-        perror("Error while closing the CSV file");
-        return EXIT_FAILURE;
-    }
+    fclose(f);
 
-    printf("File '%s' successfully written (%zu modes).\n", filename, n_modes);
+    printf("File successfully written: %s (%zu modes)\n", filename, n_modes);
 
     return EXIT_SUCCESS;
 }
