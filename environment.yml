@@ -1,0 +1,18 @@
+name: pyrcel_quick_start
+channels:
+  - conda-forge
+dependencies:
+  - assimulo
+  - particula
+  - pip
+  - python=3.11
+  - scipy
+  - numpy
+  - matplotlib
+  - pandas
+  - xarray
+  - pint
+  - mendeleev
+
+  - pip:
+    - pyrcel==1.3.4
