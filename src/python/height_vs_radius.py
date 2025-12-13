@@ -21,12 +21,6 @@ RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-
-# #chemin vers le CSV (même dossier que le script)
-# csv_path = os.path.join(os.path.dirname(DATA_DIR), 'aerosol_modes.csv')
-# modes = load_aerosol_modes_csv(csv_path)
-# print("Loaded aerosol modes:", modes)
-
 def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0=-0.02, V=1.0, t_end=250., dt=1.0):
     """
     Plot height vs supersaturation and droplet radius for two aerosol modes from a parcel model run.
@@ -179,14 +173,12 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
     
     return None
 
-#print(plot_height_vs_aerosol(modes,"Sulfate_accum","Sea_salt_coarse"))
-
 
 def main():
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     DATA_DIR = os.path.join(PROJECT_ROOT, "data")
     RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
-
+    
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
