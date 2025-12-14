@@ -76,7 +76,7 @@ gcc -arch arm64 -std=c11 -O2 -Wall -Wextra \
     "$SRC_C/albedo_fn.c" \
     -o "$SRC_C/process_all"
 
-# Run the executable
+
 "$SRC_C/process_all"
 if [ $? -ne 0 ]; then
     echo "Error during Step 2."
