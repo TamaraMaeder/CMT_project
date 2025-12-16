@@ -1,6 +1,8 @@
 name: pyrcel_quick_start
 
-channels: conda-forge 
+channels: 
+  - conda-forge 
+  
 dependencies: 
   - assimulo=3.7.2=py311h35c7eec_1 
   - bzip2=1.0.8=hd037594_8 

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from def_class import AerosolMode, load_aerosol_modes_csv
 from logn_size_dist_compare import logn_size_dist_compare_plot
+from height_radius_N_sensitivity import run_height_vs_N_sensitivity
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -200,6 +201,10 @@ def main():
     plot_height_vs_aerosol(modes,"Biogenic_OC","Sea_salt_coarse")
     plot_height_vs_aerosol(modes,"Biogenic_OC","Anthropogenic_OC")
     plot_height_vs_aerosol(modes,"Sea_salt_coarse","Black_carbon_fine")
+
+    ##run the simulations for various number concentration of sulfate
+    N_list = [300,400,500,600,700,800,900,1000]
+    run_height_vs_N_sensitivity(modes,"Sulfate_accum","Sea_salt_coarse",N_list)
 
     return 0
 
