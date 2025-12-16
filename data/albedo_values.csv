@@ -1,0 +1,5 @@
+scenario,albedo
+Scenario 1: Anthropogenic OC + Biogenic OC,0.4504599903
+Scenario 2: Sea salt coarse + Biogenic OC,0.3693321737
+Scenario 3: Black carbon fine + Sea salt coarse,0.1876083905
+Scenario 4: Sea salt coarse + Sulfate accum,0.3297918385
