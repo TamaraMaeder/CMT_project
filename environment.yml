@@ -13,6 +13,5 @@ dependencies:
   - xarray
   - pint
   - mendeleev
-
   - pip:
     - pyrcel==1.3.4
