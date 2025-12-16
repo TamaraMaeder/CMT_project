@@ -1,20 +1,76 @@
 name: pyrcel_quick_start
-channels:
-  - conda-forge
-dependencies:
-  - assimulo
-  - particula
-  - pip
-  - python=3.11
-  - scipy
-  - numpy
-  - matplotlib
-  - pandas
-  - xarray
-  - pint
-  - mendeleev
 
-  - pip:
-    - pyrcel==1.3.4
-
+channels: 
+  - conda-forge 
   
+dependencies: 
+  - assimulo=3.7.2=py311h35c7eec_1 
+  - bzip2=1.0.8=hd037594_8 
+  - ca-certificates=2025.10.5=hbd8a1cb_0 
+  - gmp=6.3.0=h7bae524_2 
+  - icu=75.1=hfee45f7_0 
+  - libamd=3.3.3=h5087772_7100102 
+  - libblas=3.9.0=38_h51639a9_openblas 
+  - libbtf=2.3.2=h99b4a89_7100102 
+  - libcamd=3.3.3=h99b4a89_7100102 
+  - libcblas=3.9.0=38_hb0561ab_openblas 
+  - libccolamd=3.3.4=h99b4a89_7100102 
+  - libcholmod=5.3.1=hbba04d7_7100102 
+  - libcolamd=3.3.4=h99b4a89_7100102 
+  - libcxsparse=4.4.1=h9e79f82_7100102 
+  - libcxx=21.1.5=hf598326_0 
+  - libexpat=2.7.1=hec049ff_0 
+  - libffi=3.5.2=he5f378a_0 
+  - libgfortran=15.2.0=hfcf01ff_1 
+  - libgfortran5=15.2.0=h742603c_1 
+  - libklu=2.3.5=h4370aa4_7100102 
+  - liblapack=3.9.0=38_hd9741b5_openblas 
+  - libldl=3.3.2=h99b4a89_7100102 
+  - liblzma=5.8.1=h39f12f2_2 
+  - libopenblas=0.3.30=openmp_ha158390_3 
+  - libparu=1.0.0=h317a14d_7100102 
+  - librbio=4.3.4=h99b4a89_7100102 
+  - libspex=3.2.3=h15d103f_7100102 
+  - libspqr=4.3.4=h775d698_7100102 
+  - libsqlite=3.51.0=h8adb53f_0 
+  - libsuitesparseconfig=7.10.1=h4a8fc20_7100102 
+  - libumfpack=6.3.5=h7c2c975_7100102 
+  - libzlib=1.3.1=h8359307_2 
+  - llvm-openmp=21.1.5=h4a912ad_0 
+  - metis=5.1.0=h15f6cfe_1007 
+  - mpfr=4.2.1=hb693164_3 
+  - ncurses=6.5=h5e97a16_3 
+  - numpy=2.3.4=py311h8685306_0 
+  - openssl=3.6.0=h5503f6c_0 
+  - particula=0.2.6=pyhd8ed1ab_0 
+  - pip=25.3=pyh8b19718_0 
+  - python=3.11.14=h18782d2_2_cpython 
+  - python_abi=3.11=8_cp311 
+  - readline=8.2=h1d1bf99_2 
+  - scipy=1.16.3=py311h2734c94_0 
+  - setuptools=80.9.0=pyhff2d567_0 
+  - suitesparse=7.10.1=h3071b36_7100102 
+  - sundials=7.4.0=h0d0ce5e_0 
+  - tk=8.6.13=h892fb3f_2 
+  - tzdata=2025b=h78e105d_0 
+  - wheel=0.45.1=pyhd8ed1ab_1 
+  - pip: 
+    - PyYAML==6.0.3 
+    - contourpy==1.3.3 
+    - cycler==0.12.1 
+    - fonttools==4.60.1 
+    - kiwisolver==1.4.9 
+    - llvmlite==0.45.1 
+    - matplotlib==3.10.7 
+    - numba==0.62.1 
+    - packaging==25.0 
+    - pandas==2.3.3 
+    - pillow==12.0.0
+    - pyparsing==3.2.5 
+    - pyrcel==1.3.4 
+    - python-dateutil==2.9.0.post0 
+    - pytz==2025.2 
+    - setuptools-scm==9.2.2 
+    - six==1.17.0 
+    - tzdata==2025.2 
+    - xarray==2025.10.1 
