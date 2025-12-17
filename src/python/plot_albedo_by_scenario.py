@@ -1,54 +1,59 @@
-
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# --- Paths (adjust if needed) ---
-csv_path = os.path.join("data", "albedo_values.csv")  # update name if different
+# --- Paths ---
+csv_path = os.path.join("data", "albedo_values.csv")
 output_dir = "results"
-output_path = os.path.join(output_dir, "albedo_scenarios.png")
+output_path = os.path.join(output_dir, "albedo_all_scenarios.png")
 
-# --- Ensure output directory exists ---
 os.makedirs(output_dir, exist_ok=True)
 
 # --- Load data ---
-# CSV should have columns: scenario, albedo
 df = pd.read_csv(csv_path)
-
-# Optional: clean / sort if needed
 df['albedo'] = pd.to_numeric(df['albedo'], errors='coerce')
-df = df.dropna(subset=['albedo']).reset_index(drop=True)
+df = df.dropna(subset=['albedo'])
 
-# --- Plot settings ---
+# --- Colors (one per scenario) ---
+colors = [
+    "#1f77b4",  # blue
+    "#ff7f0e",  # orange
+    "#2ca02c",  # green
+    "#d62728"   # red
+]
+
+# --- Plot ---
 plt.style.use('seaborn-v0_8')
-fig, axes = plt.subplots(2, 2, figsize=(12, 8), constrained_layout=True)
-axes = axes.flatten()
+fig, ax = plt.subplots(figsize=(8, 5))
 
-# --- Create 4 subplots, one per scenario ---
-for i, (idx, row) in enumerate(df.iterrows()):
-    ax = axes[i]
-    scenario = row['scenario']
-    albedo = row['albedo']
+bars = ax.bar(
+    df['scenario'],
+    df['albedo'],
+    width=0.6,
+    color=colors[:len(df)]
+)
 
-    # Single bar for the scenario
-    ax.bar([scenario], [albedo], color="#2E86C1")
-    ax.set_title(scenario, fontsize=11, pad=10)
-    ax.set_ylim(0, max(1.0, albedo * 1.2))  # albedo typically in [0,1]; adjust safely
-    ax.set_ylabel("Albedo")
-    ax.set_xticklabels([])  # hide x tick label (title already shows scenario)
+ax.set_ylabel("Albedo")
+ax.set_ylim(0, 1.0)
+ax.set_title("Albedo comparison between scenarios", pad=45)
+ax.set_xlabel("Scenarios")
+ax.legend(
+    bars,
+    df['scenario'],
+    loc='upper center',
+    bbox_to_anchor=(0.5, 1.12),  # ← SOUS le titre
+    ncol=2,
+    frameon=False
+)
 
-    # Annotate the bar with the numeric value
-    ax.bar_label(ax.containers[0], fmt="%.3f", padding=3)
+# Remove x tick labels (legend replaces them)
+ax.set_xticks([])
 
-# If fewer than 4 scenarios, hide the unused axes
-for j in range(len(df), 4):
-    fig.delaxes(axes[j])
+# Annotate values on bars
+ax.bar_label(bars, fmt="%.3f", padding=3)
 
-# --- Overall title ---
-fig.suptitle("Albedo per Scenario (2×2 subplots)", fontsize=14)
-
-# --- Save PNG ---
-fig.savefig(output_path, dpi=300)
+plt.tight_layout()
+fig.savefig(output_path, dpi=300, bbox_inches="tight")
 plt.close(fig)
 
 print(f"Saved figure to: {output_path}")
