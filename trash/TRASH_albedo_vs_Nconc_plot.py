@@ -13,7 +13,7 @@ Inputs (expected under <project_root>/data/):
   - effective_radius_mix_scenarios.csv with columns: scenario,effective_radius_m
       e.g., "3.0e+02_cm3,6.54e-07"
 
-Output (PNG only) is saved under <project_root>/results/.
+Output (PNG only) is saved under <project_root>/result/.
 """
 
 from pathlib import Path
@@ -114,48 +114,41 @@ if merged.empty:
     )
 
 # ---------- Plot ----------
-plt.rcParams['figure.dpi'] = 160
+plt.rcParams['figure.dpi'] = 140
 plt.rcParams['axes.formatter.useoffset'] = False
 
-fig, ax1 = plt.subplots(figsize=(7.6, 4.4))
+fig, ax1 = plt.subplots(figsize=(7.2, 4.2))
 
 # Colors: blue for albedo, orange for effective radius
-BLUE = '#1f77b4'    # Tableau blue
-ORANGE = '#ff7f0e'  # Tableau orange
+BLUE = '#1f77b4'   # Matplotlib Tableau blue
+ORANGE = '#ff7f0e' # Matplotlib Tableau orange
 
-# Common path effect: white halo to improve legibility over overlaps and grid
-halo = [pe.Stroke(linewidth=4.5, foreground='white', alpha=0.95), pe.Normal()]
-
-# Left y-axis: Albedo — solid line, hollow circle markers, near-opaque, rounded caps
+# Left y-axis: Albedo — solid line, hollow circle markers, slight transparency, white halo
 ln1 = ax1.plot(
     merged['N_cm3'], merged['albedo'],
-    color=BLUE, linestyle='-', linewidth=2.4,
-    marker='o', markersize=5.5,
-    markerfacecolor='white', markeredgecolor=BLUE, markeredgewidth=1.2,
-    alpha=0.98,
-    solid_capstyle='round',
+    color=BLUE, linestyle='-', linewidth=2.0,
+    marker='o', markersize=5,
+    markerfacecolor='white', markeredgecolor=BLUE,
+    alpha=0.9,
     label='Albedo (–)',
     zorder=2,
-    path_effects=halo
+    path_effects=[pe.Stroke(linewidth=3.5, foreground='white'), pe.Normal()]
 )
 ax1.set_xlabel('Sulfate concentration $N$ [cm$^{-3}$]')
 ax1.set_ylabel('Albedo (–)', color=BLUE)
 ax1.tick_params(axis='y', labelcolor=BLUE)
-ax1.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.25)
+ax1.grid(True, which='both', linestyle='--', linewidth=0.6, alpha=0.35)
 
-# Right y-axis: Effective radius — dashed line with higher-contrast pattern, filled squares
+# Right y-axis: Effective radius — dashed line, filled square markers, slight transparency
 ax2 = ax1.twinx()
 ln2 = ax2.plot(
     merged['N_cm3'], merged['effective_radius_m'],
-    color=ORANGE, linestyle='--', linewidth=2.4,
-    dashes=(7, 3),  # long dash, short gap for better separation
-    marker='s', markersize=5.5,
-    markerfacecolor=ORANGE, markeredgecolor=ORANGE, markeredgewidth=1.0,
-    alpha=0.98,
-    solid_capstyle='round',
+    color=ORANGE, linestyle='--', linewidth=2.0,
+    marker='s', markersize=5,
+    markerfacecolor=ORANGE, markeredgecolor=ORANGE,
+    alpha=0.85,
     label='Effective radius [m]',
-    zorder=3,
-    path_effects=halo
+    zorder=3  # sits above ln1
 )
 ax2.set_ylabel('Effective radius $r_\\mathrm{eff}$ [m]', color=ORANGE)
 ax2.tick_params(axis='y', labelcolor=ORANGE)
@@ -171,10 +164,10 @@ ax1.set_xlim(merged['N_cm3'].min() - 5, merged['N_cm3'].max() + 5)
 # Combine legends from both axes
 lines = ln1 + ln2
 labels = [l.get_label() for l in lines]
-ax1.legend(lines, labels, loc='best', frameon=True, framealpha=0.9)
+ax1.legend(lines, labels, loc='best', frameon=True)
 
 fig.tight_layout()
 
-# ---------- Save PNG only into 'results' ----------
-png_path = RESULTS_DIR / 'albedo_re_vs_N.png'  
+ #---------- Save PNG only into 'results' ----------
+png_path = RESULTS_DIRpng_path = RESULTS_DIR / 'albedo_and_effective_radius_vs_sulfate_concentration.png'
 fig.savefig(png_path, bbox_inches='tight')
