@@ -27,6 +27,8 @@ The final step computes cloud effective radius and albedo using classical microp
 project/
 │
 ├── environment.yml
+├── report.pdf
+├── bin/
 │
 ├── data/
 │   ├── aerosols_modes.csv
