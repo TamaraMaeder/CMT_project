@@ -45,6 +45,7 @@ SRC_C="$PROJECT_ROOT/src/c"
 SRC_PY="$PROJECT_ROOT/src/python"
 DATA_DIR="$PROJECT_ROOT/data"
 RESULTS_DIR="$PROJECT_ROOT/results"
+BIN_DIR="$PROJECT_ROOT/bin"
 
 # Créer les dossiers nécessaires
 mkdir -p "$DATA_DIR"
