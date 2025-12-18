@@ -48,8 +48,7 @@ RESULTS_DIR="$PROJECT_ROOT/results"
 BIN_DIR="$PROJECT_ROOT/bin"
 
 # Créer les dossiers nécessaires
-mkdir -p "$DATA_DIR"
-mkdir -p "$RESULTS_DIR"
+mkdir -p "$DATA_DIR" "$RESULTS_DIR" "$BIN_DIR"
 
 # Compilation and execution of the scripts 
 
@@ -72,24 +71,40 @@ echo ""
 
 echo "=== Step 2: Computing cloud albedo (C programs) ==="
 
-# Compile
-gcc $CFLAGS \
-  "$SRC_C/albedo_run.c" "$SRC_C/albedo_fn.c" \
-  -o "$BIN_DIR/albedo_run" $LDFLAGS
+# Ensure we run from project root so ./a.out is created and found here
+cd "$PROJECT_ROOT"
 
-gcc $CFLAGS \
-  "$SRC_C/albedo_vs_N_run.c" "$SRC_C/albedo_fn.c" \
-  -o "$BIN_DIR/albedo_vs_N_run" $LDFLAGS
+# Build & run albedo_run (paired with albedo_fn.c)
+echo "[build] albedo_fn.c + albedo_run.c -> a.out"
+gcc -std=c11 -O2 -Wall -Wextra \
+    "$SRC_C/albedo_fn.c" \
+    "$SRC_C/albedo_run.c" \
+    -lm
 
-gcc $CFLAGS \
-  "$SRC_C/apply_effective_radius.c" "$SRC_C/effective_radius.c" \
-  -o "$BIN_DIR/apply_effective_radius" $LDFLAGS
+echo "[run] a.out (albedo_run)"
+./a.out
+echo
 
-# Run
-"$BIN_DIR/albedo_run"
-"$BIN_DIR/albedo_vs_N_run"
-"$BIN_DIR/apply_effective_radius"
-echo ""
+# Build & run albedo_vs_N (paired with albedo_fn.c)
+echo "[build] albedo_fn.c + albedo_vs_N_run.c -> a.out"
+gcc -std=c11 -O2 -Wall -Wextra \
+    "$SRC_C/albedo_fn.c" \
+    "$SRC_C/albedo_vs_N_run.c" \
+    -lm
+
+echo "[run] a.out (albedo_vs_N_run)"
+./a.out
+echo
+
+# Build & run effradius (effective_radius.c + apply_effective_radius.c)
+echo "[build] effective_radius.c + apply_effective_radius.c -> a.out"
+gcc -std=c11 -O2 -Wall -Wextra \
+    "$SRC_C/effective_radius.c" \
+    "$SRC_C/apply_effective_radius.c" \
+    -lm
+
+echo "[run] a.out (effradius)"
+./a.out
 
 echo "=== Step 3: Final plots and analysis (Python) ==="
 
@@ -102,3 +117,4 @@ fi
 
 echo ""
 echo "All simulations successfully completed!"
+
