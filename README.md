@@ -155,7 +155,7 @@ gcc albedo_run.c Albedo_fn.c && ./a.out
 
 _Describe how the program should be executed. Ideally, it will be automated to one line of code in a terminal running Bash (e.g., matlab -batch src/myscript), with the outputs generated to "results/"._ 
 
-Run: `./run_all.sh`
+Run: `./src/run_all.sh`
 
 This will:
 1. Generate aerosol populations
