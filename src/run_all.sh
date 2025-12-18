@@ -68,22 +68,28 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "=== Step 2: Computing cloud albedo (C program) ==="
 
-# Compile and link both source files
-gcc -arch arm64 -std=c11 -O2 -Wall -Wextra \
-    "$SRC_C/process_all.c" \
-    "$SRC_C/albedo_fn.c" \
-    -o "$SRC_C/process_all"
+echo "=== Step 2: Computing cloud albedo (C programs) ==="
 
+# Compile
+gcc $CFLAGS \
+  "$SRC_C/albedo_run.c" "$SRC_C/albedo_fn.c" \
+  -o "$BIN_DIR/albedo_run" $LDFLAGS
 
-"$SRC_C/process_all"
-if [ $? -ne 0 ]; then
-    echo "Error during Step 2."
-    exit 1
-fi
+gcc $CFLAGS \
+  "$SRC_C/albedo_vs_N_run.c" "$SRC_C/albedo_fn.c" \
+  -o "$BIN_DIR/albedo_vs_N_run" $LDFLAGS
 
+gcc $CFLAGS \
+  "$SRC_C/apply_effective_radius.c" "$SRC_C/effective_radius.c" \
+  -o "$BIN_DIR/apply_effective_radius" $LDFLAGS
+
+# Run
+"$BIN_DIR/albedo_run"
+"$BIN_DIR/albedo_vs_N_run"
+"$BIN_DIR/apply_effective_radius"
 echo ""
+
 echo "=== Step 3: Final plots and analysis (Python) ==="
 
 python3 "$SRC_PY/plot_albedo_by_scenario.py"
