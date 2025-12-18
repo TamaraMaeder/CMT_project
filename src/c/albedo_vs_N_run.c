@@ -12,7 +12,6 @@
  * Run (from project root):
  *   ./bin/albedo_run
  *
- * If you run the binary from another directory, adjust DATA_DIR below accordingly.
  */
 
 #include <stdio.h>
@@ -21,20 +20,17 @@
 #include <errno.h>
 #include <math.h>
 
-/* If you have a header (albedo_fn.h), include it instead of the extern line. */
-// #include "albedo_fn.h"
 extern double albedo_from_two_aerosol_csvs(const char *csv_aerosol_one,
                                            const char *csv_aerosol_two);
 
-/* Change this if your execution directory differs from the project root. */
 #ifndef DATA_DIR
 #define DATA_DIR "data"
 #endif
 
 typedef struct {
-    const char *name;     /* Scenario label to write to output CSV */
-    const char *csv1;     /* First aerosol CSV filename (in DATA_DIR) */
-    const char *csv2;     /* Second aerosol CSV filename (in DATA_DIR) */
+    const char *name;     // Scenario label to write to output CSV 
+    const char *csv1;     // First aerosol CSV filename (in DATA_DIR) 
+    const char *csv2;     // Second aerosol CSV filename (in DATA_DIR) 
 } Scenario;
 
 static int path_join(char *out, size_t out_sz, const char *dir, const char *file) {
@@ -51,7 +47,7 @@ static int file_exists(const char *path) {
 }
 
 int main(void) {
-    /* Define scenarios exactly as provided */
+    // Define scenarios exactly as provided 
     const Scenario scenarios[] = {
         {
             "Scenario 1: Sulfate accum 3.0e+02 cm3",
@@ -97,24 +93,24 @@ int main(void) {
     };
     const size_t N = sizeof(scenarios) / sizeof(scenarios[0]);
 
-    /* Prepare output CSV path */
+    // Prepare output CSV path 
     char out_path[512];
     if (path_join(out_path, sizeof(out_path), DATA_DIR, "albedo_vs_N.csv") != 0) {
         fprintf(stderr, "Error: output path too long.\n");
         return EXIT_FAILURE;
     }
 
-    /* Open output CSV */
+    // Open output CSV 
     FILE *out = fopen(out_path, "w");
     if (!out) {
         fprintf(stderr, "Error: cannot open output file '%s': %s\n", out_path, strerror(errno));
         return EXIT_FAILURE;
     }
 
-    /* Write header: only two columns as requested */
+    // Write header: only two columns as requested 
     fprintf(out, "scenario,albedo\n");
 
-    /* Process each scenario */
+    // Process each scenario 
     for (size_t i = 0; i < N; ++i) {
         char path1[512], path2[512];
 
@@ -124,7 +120,7 @@ int main(void) {
             continue;
         }
 
-        /* Optional pre-check for clearer messages */
+        // Pre-check for clearer messages 
         if (!file_exists(path1)) {
             fprintf(stderr, "Warning: missing input CSV '%s' for %s. Skipping.\n",
                     path1, scenarios[i].name);
@@ -136,14 +132,14 @@ int main(void) {
             continue;
         }
 
-        /* Compute albedo */
+        // Compute albedo 
         double albedo = albedo_from_two_aerosol_csvs(path1, path2);
 
         if (isnan(albedo)) {
             fprintf(stderr, "Warning: albedo computation returned NaN for %s.\n", scenarios[i].name);
         }
 
-        /* Write: scenario label and albedo */
+        // Write: scenario label and albedo 
         fprintf(out, "%s,%.10g\n", scenarios[i].name, albedo);
     }
 

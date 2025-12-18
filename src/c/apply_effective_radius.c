@@ -12,24 +12,24 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* Prototype for the function implemented in effective_radius.c */
+// Prototype for the function implemented in effective_radius.c */
 double effective_radius_mix(const char *csv_path_aerosol1,
                             const char *csv_path_aerosol2,
                             double layer_thickness_m);
 
 typedef struct {
-    const char *label;   /* e.g., "3.0e+02_cm3" */
-    const char *csvN;    /* e.g., "data/profile_sulfate_seasalt_N_for_3.0e+02_cm3.csv" */
-    const char *csvR;    /* e.g., "data/Sea_salt_coarse_profile_for_Sulfate_accum_and_Sea_salt_coarse_simulation.csv" */
+    const char *label;   
+    const char *csvN;    
+    const char *csvR;     
 } Scenario;
 
 int main(void) {
-    const double h = 250.0; /* layer thickness in meters */
+    const double h = 250.0; // layer thickness in meters 
 
-    /* Common sea-salt coarse profile (same for all scenarios) */
+    // Common sea-salt coarse profile (same for all scenarios) 
     const char *sea_salt_coarse_profile = "data/Sea_salt_coarse_profile_for_Sulfate_accum_and_Sea_salt_coarse_simulation.csv";
 
-    /* Define scenarios */
+    // Define scenarios 
     Scenario scenarios[] = {
         { "3.0e+02_cm3",  "data/profile_sulfate_seasalt_N_for_3.0e+02_cm3.csv",  sea_salt_coarse_profile },
         { "4.0e+02_cm3",  "data/profile_sulfate_seasalt_N_for_4.0e+02_cm3.csv",  sea_salt_coarse_profile },
@@ -42,7 +42,7 @@ int main(void) {
     };
     const size_t n_scenarios = sizeof(scenarios) / sizeof(scenarios[0]);
 
-    /* Open output CSV */
+    // Open output CSV 
     const char *out_path = "data/effective_radius_mix_scenarios.csv";
     FILE *out = fopen(out_path, "w");
     if (!out) {
@@ -50,16 +50,16 @@ int main(void) {
         return 2;
     }
 
-    /* Header */
+    // Header 
     fprintf(out, "scenario,effective_radius_m\n");
 
-    /* Compute and write each scenario */
+    // Compute and write each scenario 
     for (size_t i = 0; i < n_scenarios; ++i) {
         const Scenario *sc = &scenarios[i];
 
         double re = effective_radius_mix(sc->csvN, sc->csvR, h);
 
-        /* If computation failed, write nan but continue with other scenarios */
+        // If computation failed, write nan but continue with other scenarios 
         if (!isfinite(re)) {
             fprintf(stderr,
                 "Warning: scenario %s failed to compute (check input files and format).\n",

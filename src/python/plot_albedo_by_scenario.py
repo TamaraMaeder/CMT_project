@@ -2,19 +2,19 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# --- Paths ---
+# Paths 
 csv_path = os.path.join("data", "albedo_values.csv")
 output_dir = "results"
 output_path = os.path.join(output_dir, "albedo_all_scenarios.png")
 
 os.makedirs(output_dir, exist_ok=True)
 
-# --- Load data ---
+# Load data 
 df = pd.read_csv(csv_path)
 df['albedo'] = pd.to_numeric(df['albedo'], errors='coerce')
 df = df.dropna(subset=['albedo'])
 
-# --- Colors (one per scenario) ---
+#Colors (one per scenario) 
 colors = [
     "#1f77b4",  # blue
     "#ff7f0e",  # orange
@@ -22,7 +22,7 @@ colors = [
     "#d62728"   # red
 ]
 
-# --- Plot ---
+#Plot 
 plt.style.use('seaborn-v0_8')
 fig, ax = plt.subplots(figsize=(8, 5))
 
@@ -41,7 +41,7 @@ ax.legend(
     bars,
     df['scenario'],
     loc='upper center',
-    bbox_to_anchor=(0.5, 1.12),  # ← SOUS le titre
+    bbox_to_anchor=(0.5, 1.12),  
     ncol=2,
     frameon=False
 )

@@ -18,14 +18,13 @@
 #include <ctype.h>
 #include <math.h>
 
-/* Public function prototype (no header file needed). */
+// Public function prototype (no header file needed). 
 double effective_radius_mix(const char *csv_path_aerosol1,
                             const char *csv_path_aerosol2,
                             double layer_thickness_m);
 
-/* -------------------- Internal helpers -------------------- */
 
-/* Trim leading/trailing whitespace (in place). Returns pointer to first non-space char. */
+// Trim leading/trailing whitespace (in place). Returns pointer to first non-space char. 
 static char *trim(char *s) {
     if (!s) return s;
     while (isspace((unsigned char)*s)) s++;  // leading
@@ -36,7 +35,7 @@ static char *trim(char *s) {
     return s;
 }
 
-/* Return 1 if line looks like a header (contains letters or underscores), else 0. */
+// Return 1 if line looks like a header (contains letters or underscores), else 0. 
 static int looks_like_header(const char *line) {
     if (!line) return 0;
     for (const char *p = line; *p; ++p) {
@@ -118,7 +117,7 @@ static int accumulate_file(const char *path, double *sum_r2n, double *sum_n) {
     return 0;
 }
 
-/* -------------------- Public function -------------------- */
+// Public function 
 
 double effective_radius_mix(const char *csv_path_aerosol1,
                             const char *csv_path_aerosol2,

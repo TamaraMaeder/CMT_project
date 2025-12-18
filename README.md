@@ -149,7 +149,7 @@ _Describe how the C program should be compiled (using gcc or mex). The executabl
 To compile the C programs, use `gcc` to build the main workflow and the albedo function together. From the project root:
 ```
 bash
-gcc AppliedFct_to_aerosols.c Albedo_fct.c && ./a.out
+gcc albedo_run.c Albedo_fn.c && ./a.out
 ```
 ### Execute
 

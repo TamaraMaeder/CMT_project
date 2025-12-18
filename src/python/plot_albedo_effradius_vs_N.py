@@ -23,7 +23,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe  # for subtle white halo under lines
 
-# ---------- Resolve project paths ----------
+# Resolve project paths
 SCRIPT_PATH = Path(__file__).resolve()
 PROJECT_ROOT = SCRIPT_PATH.parents[2]  # .../<root>/src/python/this_file.py -> parents[2] == <root>
 DATA_DIR = PROJECT_ROOT / 'data'
@@ -32,7 +32,6 @@ ALBEDO_CSV = DATA_DIR / 'albedo_vs_N.csv'
 REFF_CSV = DATA_DIR / 'effective_radius_mix_scenarios.csv'
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# ---------- Helpers ----------
 # Matches scientific notation like "3.0e+02 cm3" inside the label
 _sci_re = re.compile(r'([0-9]+\.?[0-9]*e[+\-]?\d+)\s*cm3', re.IGNORECASE)
 
@@ -75,7 +74,7 @@ def extract_N_from_reff_label(label: str) -> float:
                 return float('nan')
         return float('nan')
 
-# ---------- Load data ----------
+# Load data 
 if not ALBEDO_CSV.exists() or not REFF_CSV.exists():
     print(
         f"Expected data files not found.\n"
@@ -113,7 +112,7 @@ if merged.empty:
         "Merged dataset is empty. Check that both CSVs cover the same N range (300–1000 cm^-3) and parsing worked."
     )
 
-# ---------- Plot ----------
+# Plot 
 plt.rcParams['figure.dpi'] = 160
 plt.rcParams['axes.formatter.useoffset'] = False
 
@@ -175,6 +174,6 @@ ax1.legend(lines, labels, loc='best', frameon=True, framealpha=0.9)
 
 fig.tight_layout()
 
-# ---------- Save PNG only into 'results' ----------
+#Save PNG only into 'results' 
 png_path = RESULTS_DIR / 'albedo_re_vs_N.png'  
 fig.savefig(png_path, bbox_inches='tight')

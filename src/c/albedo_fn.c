@@ -66,9 +66,6 @@ static int accumulate_r2N_from_csv(const char *csv_file_name,
         *c1 = '\0';
         *c2 = '\0';
         *c3 = '\0';
-
-        // char *tok_height_m = p;        // unused
-        // char *tok_bin_index = c1 + 1;  // unused
         char *tok_r_m = c2 + 1;           // r_wet_m (meters)
         char *tok_N_m3 = c3 + 1;          // number_concentration_m3 (m^-3)
 
