@@ -107,7 +107,13 @@ _Templates for .tex and .odt formats are provided in "docs/". The formatting can
 
 ## Running the program
 
-### Dependencies
+### Environment
+Run in terminal: 
+1) micromamba create -f environment.yml
+2) micromamba activate pyrcel_quick_start
+
+If the installation of the environment doesn't work, it is still possible to do it manually. 
+To do so, please follow these steps:
 
 1) Install Particula: `pip install particula` 
    [Particula scientific desciption](https://uncscode.github.io/particula/Theory/) 
@@ -128,7 +134,8 @@ gcc AppliedFct_to_aerosols.c Albedo_fct.c && ./a.out
 
 _Describe how the program should be executed. Ideally, it will be automated to one line of code in a terminal running Bash (e.g., matlab -batch src/myscript), with the outputs generated to "results/"._ 
 
-Run `applied_Fct_to_aerosols.c`
+Run: `./run_all.sh`
+
 This will:
 1. Generate aerosol populations
 2. Run activation for each type
