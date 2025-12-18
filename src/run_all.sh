@@ -87,6 +87,7 @@ echo ""
 echo "=== Step 3: Final plots and analysis (Python) ==="
 
 python3 "$SRC_PY/plot_albedo_by_scenario.py"
+python3 "$SRC_PY/plot_albedo_effradius_vs_N.py"
 if [ $? -ne 0 ]; then
     echo "Error during Step 3."
     exit 1
