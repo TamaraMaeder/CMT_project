@@ -16,6 +16,12 @@ class AerosolMode:
                 f"Dg_um={self.Dg_um}, sigma_g={self.sigma_g}, kappa={self.kappa}, nb_bins={self.nb_bins})")
 
 def load_aerosol_modes_csv(path):
+    '''
+    This function aimes to extract the data about aerosols from a csv file
+    
+    param: path: path of the csv file
+    output: list of class AerosolMode: contains the data for each type of aerosol described in the csv
+    '''
     modes = []
     with open(path, newline='', encoding='utf-8') as fh:
         reader = csv.DictReader(fh)

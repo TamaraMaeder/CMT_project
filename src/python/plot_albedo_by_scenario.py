@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
+#This script aims to plot the results of the albedo simulations
+
 # Paths 
 csv_path = os.path.join("data", "albedo_values.csv")
 output_dir = "results"

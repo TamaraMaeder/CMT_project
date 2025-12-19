@@ -18,7 +18,7 @@ from height_radius_N_sensitivity import run_height_vs_N_sensitivity
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
-
+    
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
@@ -44,6 +44,11 @@ def plot_height_vs_aerosol(modes, first: str, second: str, P=77500., T0=274., S0
     from pyrcel import binned_activation
     
     def find_mode_by_name(name):
+        '''
+        This function aims to find a certain aerosol in a list of class by its name.
+        
+        :param name: str of the name of the aerosol that we are looking for 
+        '''
         key = name.strip().lower()
         for m in modes:
             n = m.name.replace('_', ' ').lower()
